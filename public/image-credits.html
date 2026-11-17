@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,follow">
+  <title>Nguồn ảnh &amp; ghi nhận — Fansipan Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand: #1e4066;
+      --ink: #182c46;
+      --ink-soft: #3e526c;
+      --muted: #5b6c81;
+      --line: #d3e1ed;
+      --cloud: #eff6fc;
+      --sky: #e4eff8;
+      --accent: #ff9e2c;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: var(--ink);
+      font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+      font-size: 1.0625rem;
+      line-height: 1.65;
+    }
+    a { color: var(--brand); text-decoration: none; text-underline-offset: 3px; }
+    a:hover { text-decoration: underline; }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.1rem clamp(1.25rem, 4vw, 3rem);
+      background: var(--cloud);
+    }
+    .top img { display: block; height: 30px; width: auto; }
+    .back {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+    main { width: min(980px, calc(100% - 2.5rem)); margin: 0 auto; padding: 3.5rem 0 4.5rem; }
+    .intro { max-width: 780px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      min-height: 3rem;
+      margin-top: 1.5rem;
+      padding: .9rem 1.5rem;
+      background: var(--accent);
+      color: var(--ink);
+      font-family: "Fraunces", Georgia, "Times New Roman", serif;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .btn:hover { background: #f18b13; text-decoration: none; }
+    .lead-media {
+      margin-top: 2rem;
+      height: clamp(320px, 52vh, 620px);
+      overflow: hidden;
+      background: var(--sky);
+    }
+    .lead-media img, .gallery img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .gallery figure { margin: 0; }
+    .gallery img { aspect-ratio: 4 / 3; }
+    .gallery figcaption { margin-top: .5rem; font-size: .8125rem; color: var(--muted); }
+    html.reveal-ready [data-reveal] {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    html.reveal-ready [data-reveal].is-in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      html.reveal-ready [data-reveal] { transform: none; transition: opacity .35s ease; }
+    }
+    h1 {
+      margin: .8rem 0 0;
+      font-family: "Fraunces", Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      line-height: 1.02;
+      letter-spacing: -.02em;
+    }
+    .lead { margin: 1.1rem 0 0; max-width: 62ch; color: var(--ink-soft); font-size: 1.0625rem; }
+    .note {
+      display: grid;
+      grid-template-columns: minmax(0, .55fr) repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 1.25rem;
+      margin-top: 2.4rem;
+      padding: 1.5rem;
+      background: var(--cloud);
+      font-size: 1rem;
+      color: var(--ink-soft);
+    }
+    .note h2 { font-size: 1.15rem; }
+    .note p { margin: 0; }
+    .note strong { color: var(--ink); }
+    @media (max-width: 760px) {
+      .note { grid-template-columns: 1fr; gap: .8rem; }
+    }
+    h2 {
+      margin: 0;
+      font-family: "Fraunces", Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      font-size: 1.05rem;
+      line-height: 1.35;
+      letter-spacing: -.01em;
+    }
+    .list-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 2.8rem 0 .6rem;
+      padding-bottom: .5rem;
+    }
+    .list-head h2 { font-size: 1.35rem; }
+    .list-head span { font-size: .8125rem; color: var(--muted); }
+    ul.credits { list-style: none; margin: 0; padding: 0; }
+    .credit {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1.25rem;
+      align-items: center;
+      margin-inline: -1rem;
+      padding: 1.1rem 1rem;
+    }
+    .credit:nth-child(even) { background: var(--cloud); }
+    .credit p { margin: .2rem 0 0; color: var(--muted); font-size: 1rem; }
+    .meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem .9rem; font-size: .8125rem; }
+    .license {
+      display: inline-flex;
+      padding: .2rem .55rem;
+      background: var(--sky);
+      font-size: .8125rem;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+    .logo-note { margin-top: 2.6rem; padding: 1.3rem 1.4rem; background: var(--cloud); }
+    .logo-note h2 { font-size: 1rem; }
+    .logo-note p { margin: .6rem 0 0; max-width: 68ch; font-size: 1rem; color: var(--ink-soft); }
+    .updated { margin-top: 2.6rem; font-size: .8125rem; color: var(--muted); }
+    footer {
+      padding: 1.4rem clamp(1.25rem, 4vw, 3rem);
+      background: var(--sky);
+      color: var(--ink-soft);
+      font-size: .8125rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem 1rem;
+      justify-content: space-between;
+    }
+    @media (max-width: 640px) {
+      .credit { grid-template-columns: 1fr; gap: .6rem; }
+      .meta { justify-content: flex-start; }
+      .top img { height: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a href="/vi" aria-label="Fansipan Group">
+      <img src="/brand/wordmark.png" alt="Fansipan Group">
+    </a>
+    <a class="back" href="/vi">← Về trang chủ</a>
+  </header>
+
+  <main>
+    <div class="intro">
+      <h1>Nguồn ảnh &amp; ghi nhận</h1>
+      <p class="lead">
+        Trang này ghi nhận tác giả, giấy phép và nguồn của các hình ảnh minh họa được sử dụng
+        trên website Fansipan Group.
+      </p>
+      <a class="btn" href="/vi">← Về trang chủ</a>
+    </div>
+
+    <figure class="lead-media">
+      <img src="/images/about/cooling.jpg" alt="Hệ thống tháp giải nhiệt và đường ống tại nhà máy">
+    </figure>
+
+    <div class="gallery">
+      <figure>
+        <img src="/images/projects/pullman-ha-noi.jpg" alt="Khách sạn Pullman Hà Nội nhìn từ phố">
+        <figcaption>Dự án Pullman Hà Nội · ảnh minh họa</figcaption>
+      </figure>
+      <figure>
+        <img src="/images/about/systems.jpg" alt="Kỹ sư kiểm tra tủ điện tại công trình">
+        <figcaption>Công tác kỹ thuật tại công trình · ảnh minh họa</figcaption>
+      </figure>
+      <figure>
+        <img src="/images/careers/technicians.jpg" alt="Kỹ thuật viên vận hành thiết bị HVAC">
+        <figcaption>Đội ngũ kỹ thuật HVAC · ảnh minh họa</figcaption>
+      </figure>
+    </div>
+
+    <div class="note">
+      <h2>Ghi chú hình ảnh</h2>
+      <p>
+        <strong>Lưu ý về hình ảnh:</strong> Phần lớn hình ảnh trên website là ảnh minh họa
+        cho loại công trình, thiết bị hoặc hạng mục công việc. Đây không phải ảnh công trình
+        thực tế của Fansipan Group, trừ khi có ghi chú khác tại từng nội dung.
+      </p>
+      <p>
+        <strong>Image note:</strong> Most photographs on this website illustrate the type of
+        facility, equipment or work item. They are not photographs of Fansipan Group's actual
+        projects unless stated otherwise.
+      </p>
+    </div>
+
+    <div class="list-head">
+      <h2>Hình ảnh từ Wikimedia Commons</h2>
+      <span>19 mục</span>
+    </div>
+
+    <ul class="credits">
+      <li class="credit">
+        <div>
+          <h2>Toàn cảnh đỉnh Fansipan từ trên cao</h2>
+          <p>Ảnh: Vivu Vietnam</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Fansipan_Summit_3143m_aerial_wide_temple_complex_sea_of_clouds_Sa_Pa_Vietnam.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Nhà máy nhiệt điện Tuticorin về đêm</h2>
+          <p>Ảnh: Ramkumar</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 2.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Tuticorin_Thermal_Power_Station_at_Night.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Phòng tủ điện trung thế tại trạm biến áp</h2>
+          <p>Ảnh: MTA Capital Construction Mega Projects</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY 2.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Systems_testing_in_the_service_switchgear_room_of_a_power_substation_located_in_Queens._(CS179%2C_08-13-2018)_(44048210052).jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Kỹ thuật viên HVAC kiểm tra thiết bị</h2>
+          <p>Ảnh: U.S. Air Force AFCENT / Airman 1st Class Derrick Bole</p>
+        </div>
+        <div class="meta">
+          <span class="license">Public domain (U.S. Government work)</span>
+          <a href="https://commons.wikimedia.org/wiki/File:379th_ECES_HVAC_technicians_combat_rising_temperatures_(8502255).jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/mark/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Kỹ thuật viên HVAC vận hành thiết bị</h2>
+          <p>Ảnh: U.S. Air Force AFCENT / Airman 1st Class Derrick Bole</p>
+        </div>
+        <div class="meta">
+          <span class="license">Public domain (U.S. Government work)</span>
+          <a href="https://commons.wikimedia.org/wiki/File:379th_ECES_HVAC_technicians_combat_rising_temperatures_(8502257).jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/mark/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Tháp giải nhiệt kiểu hút gió cho HVAC</h2>
+          <p>Ảnh: Aloofmanish</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Induced_Draft_Cooling_Tower_for_HVAC.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Cụm thiết bị điều hòa trên mái</h2>
+          <p>Ảnh: P199</p>
+        </div>
+        <div class="meta">
+          <span class="license">Public domain</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Rooftop_Packaged_Units.JPG" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/mark/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Bảo dưỡng động cơ tàu bay</h2>
+          <p>Ảnh: Peter F.A. van de Noort</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Aircraft_Maintenance%2C_AMN%2C_Teuge_Airport.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Máy làm lạnh (chiller) Trane AquaStream</h2>
+          <p>Ảnh: Cjp24</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Trane_AquaStream_3G_chiller_(2).jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Kỹ sư vận hành tủ điều khiển trong nhà máy</h2>
+          <p>Ảnh: Shixart1985</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY 2.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Worker_interacts_with_machine_control_panel_in_a_manufacturing_facility.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Dây chuyền sản xuất giấy cuộn</h2>
+          <p>Ảnh: Sammutawe</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Tissue_Paper_Production_Machine.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Khách sạn Pullman, 40 Cát Linh, Hà Nội</h2>
+          <p>Ảnh: Phan Minh Tuấn</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Kh%C3%A1ch_s%E1%BA%A1n_Pullman%2C_40_C%C3%A1t_Linh%2C_H%C3%A0_N%E1%BB%99i_001.JPG" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Công nhân luyện thép tại nhà máy Vicasa</h2>
+          <p>Ảnh: SP5 Logan McMinn</p>
+        </div>
+        <div class="meta">
+          <span class="license">Public domain (U.S. Government work)</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Steelworkers_at_the_Vicasa_Steel_Mill_pour_molten_steel_from_the_smelter.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/mark/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Dây chuyền sản xuất bo mạch điện tử</h2>
+          <p>Ảnh: Raimond Spekking</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 4.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Schmid_Electronics_Tech_Line_DPC_500_(2)_-_boards-4341.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Tổ máy tuabin khí</h2>
+          <p>Ảnh: Kaboldy</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY-SA 3.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:L%C3%81NG_turbina.JPG" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Buồng sơn tàu bay tại Tinker AFB</h2>
+          <p>Ảnh: Greg L. Davis / U.S. Air Force</p>
+        </div>
+        <div class="meta">
+          <span class="license">Public domain (U.S. Government work)</span>
+          <a href="https://commons.wikimedia.org/wiki/File:B-52H%2C_61-0007%2C_'Ghost_Rider'_in_the_paint_hangar_at_Tinker_AFB%2C_Okla._160921-F-VV898-018.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/mark/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Hệ thống đường ống và ống gió công nghiệp</h2>
+          <p>Ảnh: Federal Bureau of Investigation</p>
+        </div>
+        <div class="meta">
+          <span class="license">Public domain (U.S. Government work)</span>
+          <a href="https://commons.wikimedia.org/wiki/File:EFTA00000351_-_Complex_network_of_industrial_pipes_and_ductwork_with_yellow_warning_labels_on_the_white_piping_arranged_in_an_HVAC_system_within_a_concrete_structure.jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/mark/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Phòng lò hơi công nghiệp</h2>
+          <p>Ảnh: Oliksiy Yakovlyev via Poly Haven</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC0 1.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:Boiler_room_%E2%80%93_Panorama_(Oliksiy_Yakovlyev_via_Poly_Haven).jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+      <li class="credit">
+        <div>
+          <h2>Cuộc họp đội ngũ kỹ thuật</h2>
+          <p>Ảnh: NAVFAC</p>
+        </div>
+        <div class="meta">
+          <span class="license">CC BY 2.0</span>
+          <a href="https://commons.wikimedia.org/wiki/File:National_Engineers'_Week_NAVFAC_Pacific_Capital_Improvements_Branch_Managers_Conduct_Bi-Monthly_Meeting_-_Feb._18%2C_2014_(12639134654).jpg" target="_blank" rel="noreferrer noopener">Xem nguồn ↗</a>
+          <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer noopener">Giấy phép ↗</a>
+        </div>
+      </li>
+    </ul>
+
+    <section class="logo-note">
+      <h2>Logo khách hàng và đối tác</h2>
+      <p>
+        Các logo trong mục “Khách hàng và đối tác” hiện là phiên bản mô phỏng đơn giản được
+        tạo cho mục đích trình bày bố cục. Đây không phải tệp logo chính thức và không thể hiện
+        quan hệ hợp tác đã được xác nhận. Trước khi công bố, vui lòng thay thế bằng tệp logo
+        chính thức do khách hàng cung cấp.
+      </p>
+      <p>
+        The client and partner logos are simplified placeholder recreations for layout
+        demonstration. They are not official logo files and do not imply a confirmed
+        relationship. Replace them with official client-supplied logo files before publication.
+      </p>
+    </section>
+
+    <p class="updated">Cập nhật: 07/11/2026 · Fansipan Group</p>
+  </main>
+
+  <footer>
+    <span>© 2026 Công ty cổ phần Fansipan Group</span>
+    <span>fansipan-group.vn</span>
+  </footer>
+
+  <script>
+    (() => {
+      document.documentElement.classList.add('reveal-ready');
+      const items = document.querySelectorAll('.intro, .lead-media, .gallery figure, .note, .list-head, .credit, .logo-note');
+      if (!('IntersectionObserver' in window)) {
+        items.forEach((el) => el.classList.add('is-in'));
+        return;
+      }
+      items.forEach((el) => el.setAttribute('data-reveal', ''));
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      items.forEach((el) => io.observe(el));
+    })();
+  </script>
+</body>
+</html>
