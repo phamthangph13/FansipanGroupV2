@@ -55,13 +55,7 @@ const copy = {
   },
 } as const;
 
-export async function generateStaticParams() {
-  const jobs = await getJobs();
-  return jobs.flatMap((job) => [
-    { locale: "vi", slug: job.slug },
-    { locale: "en", slug: job.slug },
-  ]);
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

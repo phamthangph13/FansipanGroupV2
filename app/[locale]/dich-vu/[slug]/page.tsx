@@ -45,13 +45,7 @@ const copy = {
   },
 } as const;
 
-export async function generateStaticParams() {
-  const services = await getServices();
-  return services.flatMap((service) => [
-    { locale: "vi", slug: service.slug },
-    { locale: "en", slug: service.slug },
-  ]);
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

@@ -39,13 +39,7 @@ const copy = {
   },
 } as const;
 
-export async function generateStaticParams() {
-  const articles = await getArticles();
-  return articles.flatMap((article) => [
-    { locale: "vi", slug: article.slug },
-    { locale: "en", slug: article.slug },
-  ]);
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
