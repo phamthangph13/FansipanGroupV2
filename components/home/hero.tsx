@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowDown, ArrowRight } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
 import { paths, ui, type Locale } from "@/lib/i18n";
-import type { SiteData } from "@/lib/types";
+import type { Banner, SiteData } from "@/lib/types";
 import { HeroCrossfade, type HeroFrame } from "./hero-crossfade";
 
 const copy = {
@@ -35,14 +36,25 @@ const copy = {
   { support: string; disciplines: string; action: string; scroll: string; frames: HeroFrame[] }
 >;
 
-export function Hero({ locale, site }: { locale: Locale; site: SiteData }) {
+export function Hero({
+  locale,
+  site,
+  banners = [],
+}: {
+  locale: Locale;
+  site: SiteData;
+  banners?: Banner[];
+}) {
   const t = ui[locale];
   const c = copy[locale];
+  const frames: HeroFrame[] = banners.length
+    ? banners.map((banner) => ({ src: banner.image, alt: banner.alt[locale] }))
+    : [...c.frames];
 
   return (
     <section className="relative isolate min-h-[640px] overflow-hidden bg-navy text-white lg:h-[100svh]">
       <div className="absolute inset-0" aria-hidden>
-        <HeroCrossfade frames={[...c.frames]} />
+        <HeroCrossfade frames={frames} />
         <div className="absolute inset-x-0 top-0 h-64 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.7),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[78%] bg-[linear-gradient(to_top,rgba(0,0,0,0.9),rgba(0,0,0,0.42)_55%,transparent_82%)]" />
       </div>
@@ -61,12 +73,22 @@ export function Hero({ locale, site }: { locale: Locale; site: SiteData }) {
 
           <div className="lg:col-span-5 lg:justify-self-end">
             <Reveal delay={120}>
-              <p className="lead max-w-[36ch] text-white lg:text-right">{c.support}</p>
+              <Editable
+                k="home.hero.support"
+                locale={locale}
+                fallback={c.support}
+                as="p"
+                className="lead max-w-[36ch] text-white lg:text-right"
+              />
             </Reveal>
             <Reveal delay={160}>
-              <p className="mt-3 text-[0.8125rem] text-white/85 lg:text-right">
-                {c.disciplines}
-              </p>
+              <Editable
+                k="home.hero.disciplines"
+                locale={locale}
+                fallback={c.disciplines}
+                as="p"
+                className="mt-3 text-[0.8125rem] text-white/85 lg:text-right"
+              />
             </Reveal>
             <Reveal delay={220}>
               <div className="mt-6 lg:flex lg:justify-end">
@@ -74,7 +96,12 @@ export function Hero({ locale, site }: { locale: Locale; site: SiteData }) {
                   href={`/${locale}${paths.contact}#quote`}
                   className="btn btn-primary w-full sm:w-auto"
                 >
-                  {c.action}
+                  <Editable
+                    k="home.hero.action"
+                    locale={locale}
+                    fallback={c.action}
+                    as="span"
+                  />
                   <ArrowRight className="size-4" />
                 </Link>
               </div>
@@ -84,7 +111,13 @@ export function Hero({ locale, site }: { locale: Locale; site: SiteData }) {
       </div>
 
       <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-white/65 lg:flex">
-        <span className="text-[0.8125rem]">{c.scroll}</span>
+        <Editable
+          k="home.hero.scroll"
+          locale={locale}
+          fallback={c.scroll}
+          as="span"
+          className="text-[0.8125rem]"
+        />
         <ArrowDown className="size-3.5 animate-bounce [animation-duration:2.2s]" strokeWidth={1.4} />
       </div>
 

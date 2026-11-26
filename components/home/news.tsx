@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
 import { categoryLabel } from "@/lib/labels";
 import { paths, type Locale } from "@/lib/i18n";
 import type { Article } from "@/lib/types";
@@ -34,9 +35,16 @@ export function NewsSection({ locale, articles }: { locale: Locale; articles: Ar
     <section id="tin-tuc" className="bg-white py-24 lg:py-32">
       <div className="wrap">
         <div className="flex flex-wrap items-end justify-between gap-8">
-          <h2 className="display-2 max-w-[19ch]">{c.title}</h2>
+          <Editable
+            k="home.news.title"
+            locale={locale}
+            fallback={c.title}
+            as="h2"
+            className="display-2 max-w-[19ch]"
+            multiline
+          />
           <Link href={`/${locale}${paths.news}`} className="link-arrow">
-            {c.all}
+            <Editable k="home.news.all" locale={locale} fallback={c.all} as="span" />
             <ArrowRight className="size-4" />
           </Link>
         </div>
@@ -91,7 +99,12 @@ export function NewsSection({ locale, articles }: { locale: Locale; articles: Ar
                     {article.excerpt[locale]}
                   </p>
                   <span className="link-arrow mt-3 inline-flex text-[1rem]">
-                    {locale === "vi" ? "Đọc tiếp" : "Read more"}
+                    <Editable
+                      k="home.news.readMore"
+                      locale={locale}
+                      fallback={locale === "vi" ? "Đọc tiếp" : "Read more"}
+                      as="span"
+                    />
                     <ArrowRight className="size-3.5" />
                   </span>
                 </Link>

@@ -9,6 +9,7 @@ import { ServiceArt, type ServiceArtVariant } from "@/components/illustrations/s
 import { StatsBand } from "@/components/home/stats";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
 import { getServices, getSite } from "@/lib/content";
 import { isLocale, paths, ui, type Locale } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
@@ -151,8 +152,12 @@ export default async function AboutPage({
     <>
       <PageHero
         locale={locale}
-        title={c.title}
-        intro={c.intro}
+        title={
+          <Editable k="about.hero.title" locale={locale} fallback={c.title} as="span" />
+        }
+        intro={
+          <Editable k="about.hero.intro" locale={locale} fallback={c.intro} as="span" multiline />
+        }
         breadcrumb={[
           { label: t.nav.home, href: `/${locale}` },
           { label: t.nav.about },
@@ -163,25 +168,40 @@ export default async function AboutPage({
         <div className="wrap grid gap-12 lg:grid-cols-12 lg:gap-8 card-enter">
           <div className="lg:col-span-7">
             <Reveal>
-              <h2 className="display-2 max-w-[18ch] text-ink">{c.overviewTitle}</h2>
-              <p className="mt-6 max-w-[52ch] text-[1rem] leading-relaxed text-ink-soft">
-                {c.overviewBody}
-              </p>
+              <Editable
+                k="about.overview.title"
+                locale={locale}
+                fallback={c.overviewTitle}
+                as="h2"
+                className="display-2 max-w-[18ch] text-ink"
+                multiline
+              />
+              <Editable
+                k="about.overview.body"
+                locale={locale}
+                fallback={c.overviewBody}
+                as="p"
+                className="mt-6 max-w-[52ch] text-[1rem] leading-relaxed text-ink-soft"
+                multiline
+              />
             </Reveal>
             <div className="mt-8 max-w-[62ch] space-y-5">
               {paragraphs.map((paragraph, index) => {
                 const last = index === paragraphs.length - 1;
                 return (
                   <Reveal key={paragraph.slice(0, 32)} delay={80 + index * 60}>
-                    <p
+                    <Editable
+                      k={`about.intro.${index}`}
+                      locale={locale}
+                      fallback={paragraph}
+                      as="p"
                       className={
                         last
                           ? "display-4 leading-snug text-ink"
                           : "text-[1rem] leading-[1.8] text-ink-soft"
                       }
-                    >
-                      {paragraph}
-                    </p>
+                      multiline
+                    />
                   </Reveal>
                 );
               })}
@@ -192,7 +212,9 @@ export default async function AboutPage({
             <Reveal delay={120}>
               <div className="bg-brand-050 p-6 sm:p-8">
                 <Logo size="md" />
-                <p className="mt-8 text-[0.8125rem] text-ink-soft">{c.legal}</p>
+                <p className="mt-8 text-[0.8125rem] text-ink-soft">
+                  <Editable k="about.legal" locale={locale} fallback={c.legal} as="span" />
+                </p>
                 <p className="mt-2 text-[1rem] font-semibold leading-snug text-ink">
                   {site.company.legalName[locale]}
                 </p>
@@ -200,19 +222,25 @@ export default async function AboutPage({
 
                 <dl className="mt-7 space-y-5">
                   <div>
-                    <dt className="text-[0.8125rem] text-ink-soft">{c.taxCode}</dt>
+                    <dt className="text-[0.8125rem] text-ink-soft">
+                      <Editable k="about.taxCode" locale={locale} fallback={c.taxCode} as="span" />
+                    </dt>
                     <dd className="mt-1 text-[1rem] text-ink">
                       {site.company.taxCode || t.labels.updating}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[0.8125rem] text-ink-soft">{c.address}</dt>
+                    <dt className="text-[0.8125rem] text-ink-soft">
+                      <Editable k="about.address" locale={locale} fallback={c.address} as="span" />
+                    </dt>
                     <dd className="mt-1 text-[1rem] leading-relaxed text-ink">
                       {site.offices[0]?.address[locale]}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[0.8125rem] text-ink-soft">{c.email}</dt>
+                    <dt className="text-[0.8125rem] text-ink-soft">
+                      <Editable k="about.email" locale={locale} fallback={c.email} as="span" />
+                    </dt>
                     <dd className="mt-1 text-[1rem] text-ink">
                       <a
                         href={`mailto:${site.contact.email}`}
@@ -223,13 +251,15 @@ export default async function AboutPage({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[0.8125rem] text-ink-soft">{c.hotline}</dt>
+                    <dt className="text-[0.8125rem] text-ink-soft">
+                      <Editable k="about.hotline" locale={locale} fallback={c.hotline} as="span" />
+                    </dt>
                     <dd className="mt-1 text-[1rem] text-ink">{site.contact.hotlineDisplay}</dd>
                   </div>
                 </dl>
 
                 <Link href={`/${locale}${paths.profile}`} className="link-arrow mt-7">
-                  {c.profile}
+                  <Editable k="about.profile" locale={locale} fallback={c.profile} as="span" />
                   <ArrowRight className="size-4" />
                 </Link>
               </div>
@@ -242,14 +272,35 @@ export default async function AboutPage({
         <div className="wrap grid gap-12 lg:grid-cols-12 lg:gap-8 card-enter">
           <div className="lg:col-span-4">
             <Reveal>
-              <h2 className="display-3 text-ink">{c.differenceTitle}</h2>
+              <Editable
+                k="about.difference.title"
+                locale={locale}
+                fallback={c.differenceTitle}
+                as="h2"
+                className="display-3 text-ink"
+                multiline
+              />
             </Reveal>
           </div>
           <div className="grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:col-span-7 lg:col-start-6">
             {c.differences.map((item, index) => (
               <Reveal key={item.title} delay={index * 70}>
-                <h3 className="display-4 text-ink">{item.title}</h3>
-                <p className="mt-3 text-[1rem] leading-relaxed text-ink-soft">{item.body}</p>
+                <Editable
+                  k={`about.difference.${index}.title`}
+                  locale={locale}
+                  fallback={item.title}
+                  as="h3"
+                  className="display-4 text-ink"
+                  multiline
+                />
+                <Editable
+                  k={`about.difference.${index}.body`}
+                  locale={locale}
+                  fallback={item.body}
+                  as="p"
+                  className="mt-3 text-[1rem] leading-relaxed text-ink-soft"
+                  multiline
+                />
               </Reveal>
             ))}
           </div>
@@ -260,24 +311,48 @@ export default async function AboutPage({
         <div className="wrap grid gap-14 lg:grid-cols-2 lg:gap-8 card-enter">
           <div>
             <Reveal>
-              <h2 className="display-2 text-white">{c.vision}</h2>
+              <Editable
+                k="about.vision.title"
+                locale={locale}
+                fallback={c.vision}
+                as="h2"
+                className="display-2 text-white"
+              />
               <div className="mt-6 space-y-5">
-                {site.about.vision.map((item) => (
-                  <p key={item[locale]} className="max-w-[56ch] text-[1rem] leading-[1.8] text-white/70">
-                    {item[locale]}
-                  </p>
+                {site.about.vision.map((item, index) => (
+                  <Editable
+                    key={item[locale]}
+                    k={`about.vision.${index}`}
+                    locale={locale}
+                    fallback={item[locale]}
+                    as="p"
+                    className="max-w-[56ch] text-[1rem] leading-[1.8] text-white/70"
+                    multiline
+                  />
                 ))}
               </div>
             </Reveal>
           </div>
           <div className="lg:pl-10">
             <Reveal delay={100}>
-              <h2 className="display-2 text-white">{c.mission}</h2>
+              <Editable
+                k="about.mission.title"
+                locale={locale}
+                fallback={c.mission}
+                as="h2"
+                className="display-2 text-white"
+              />
               <div className="mt-6 space-y-5">
-                {site.about.mission.map((item) => (
-                  <p key={item[locale]} className="max-w-[56ch] text-[1rem] leading-[1.8] text-white/70">
-                    {item[locale]}
-                  </p>
+                {site.about.mission.map((item, index) => (
+                  <Editable
+                    key={item[locale]}
+                    k={`about.mission.${index}`}
+                    locale={locale}
+                    fallback={item[locale]}
+                    as="p"
+                    className="max-w-[56ch] text-[1rem] leading-[1.8] text-white/70"
+                    multiline
+                  />
                 ))}
               </div>
             </Reveal>
@@ -287,14 +362,28 @@ export default async function AboutPage({
 
       <section className="bg-white py-20 lg:py-28">
         <div className="wrap card-enter">
-          <SectionHeading title={c.valuesTitle} />
+          <SectionHeading
+            title={<Editable k="about.values.title" locale={locale} fallback={c.valuesTitle} as="span" />}
+          />
           <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {site.about.values.map((value, index) => (
               <Reveal key={value.title[locale]} delay={index * 60}>
-                <h3 className="display-4 text-ink">{value.title[locale]}</h3>
-                <p className="mt-3 text-[1rem] leading-relaxed text-ink-soft">
-                  {value.body[locale]}
-                </p>
+                <Editable
+                  k={`about.values.${index}.title`}
+                  locale={locale}
+                  fallback={value.title[locale]}
+                  as="h3"
+                  className="display-4 text-ink"
+                  multiline
+                />
+                <Editable
+                  k={`about.values.${index}.body`}
+                  locale={locale}
+                  fallback={value.body[locale]}
+                  as="p"
+                  className="mt-3 text-[1rem] leading-relaxed text-ink-soft"
+                  multiline
+                />
               </Reveal>
             ))}
           </div>
@@ -304,11 +393,26 @@ export default async function AboutPage({
       <section className="bg-sky-2 py-20 lg:py-28">
         <div className="wrap card-enter">
           <SectionHeading
-            title={c.capabilityTitle}
-            intro={c.capabilityIntro}
+            title={
+              <Editable
+                k="about.capability.title"
+                locale={locale}
+                fallback={c.capabilityTitle}
+                as="span"
+              />
+            }
+            intro={
+              <Editable
+                k="about.capability.intro"
+                locale={locale}
+                fallback={c.capabilityIntro}
+                as="span"
+                multiline
+              />
+            }
             action={
               <Link href={`/${locale}${paths.services}`} className="link-arrow">
-                {c.services}
+                <Editable k="about.capability.services" locale={locale} fallback={c.services} as="span" />
                 <ArrowRight className="size-4" />
               </Link>
             }
@@ -358,11 +462,25 @@ export default async function AboutPage({
       <section className="bg-navy py-16 text-white lg:py-20">
         <div className="wrap flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
           <div>
-            <h2 className="display-3 max-w-[20ch] text-white">{c.ctaTitle}</h2>
-            <p className="mt-3 max-w-xl text-[1rem] leading-relaxed text-white/65">{c.ctaBody}</p>
+            <Editable
+              k="about.cta.title"
+              locale={locale}
+              fallback={c.ctaTitle}
+              as="h2"
+              className="display-3 max-w-[20ch] text-white"
+              multiline
+            />
+            <Editable
+              k="about.cta.body"
+              locale={locale}
+              fallback={c.ctaBody}
+              as="p"
+              className="mt-3 max-w-xl text-[1rem] leading-relaxed text-white/65"
+              multiline
+            />
           </div>
           <Link href={`/${locale}${paths.contact}#quote`} className="btn btn-primary shrink-0">
-            {c.cta}
+            <Editable k="about.cta.button" locale={locale} fallback={c.cta} as="span" />
             <ArrowRight className="size-4" />
           </Link>
         </div>

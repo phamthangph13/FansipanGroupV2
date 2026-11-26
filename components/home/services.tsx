@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@/components/ui/icons";
+import { EditableText } from "@/components/editor/editable-text";
 import { paths, type Locale } from "@/lib/i18n";
 import type { Service } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -77,7 +78,13 @@ export function ServicesSection({
     <section className="bg-navy text-white">
       {/* compact list — phone */}
       <div className="wrap py-24 lg:hidden">
-        <h2 className="display-2 max-w-[16ch] text-white">{c.heading}</h2>
+        <EditableText
+          k="home.services.title"
+          defaultText={c.heading}
+          as="h2"
+          className="display-2 max-w-[16ch] text-white"
+          multiline
+        />
         <div className="mt-10 space-y-16">
           {services.map((service) => (
             <div key={service.id}>
@@ -98,14 +105,14 @@ export function ServicesSection({
                 href={`/${locale}${paths.services}/${service.slug}`}
                 className="link-arrow-light mt-4"
               >
-                {c.detail}
+                <EditableText k="home.services.detail" defaultText={c.detail} as="span" />
                 <ArrowRight className="size-4" />
               </Link>
             </div>
           ))}
         </div>
         <Link href={`/${locale}${paths.services}`} className="link-arrow-light mt-14">
-          {c.all}
+          <EditableText k="home.services.all" defaultText={c.all} as="span" />
           <ArrowRight className="size-4" />
         </Link>
       </div>
@@ -115,7 +122,13 @@ export function ServicesSection({
         <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
           <div className="wrap relative grid w-full grid-cols-12 items-center gap-8">
             <div className="col-span-7">
-              <h2 className="display-2 max-w-[15ch] text-white">{c.heading}</h2>
+              <EditableText
+                k="home.services.title"
+                defaultText={c.heading}
+                as="h2"
+                className="display-2 max-w-[15ch] text-white"
+                multiline
+              />
               <ul className="mt-10 space-y-1">
                 {services.map((service, index) => (
                   <li key={service.id}>
@@ -144,7 +157,7 @@ export function ServicesSection({
                 {current?.tagline[locale]}
               </p>
               <Link href={`/${locale}${paths.services}`} className="link-arrow-light mt-2">
-                {c.all}
+                <EditableText k="home.services.all" defaultText={c.all} as="span" />
                 <ArrowRight className="size-4" />
               </Link>
             </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
 import { paths, type Locale } from "@/lib/i18n";
 import type { Job } from "@/lib/types";
 
@@ -30,16 +31,28 @@ export function CareersTeaser({ locale, jobs }: { locale: Locale; jobs: Job[] })
       <div className="wrap grid gap-14 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-6">
           <Reveal>
-            <h2 className="display-2 max-w-[18ch] text-ink">{c.title}</h2>
+            <Editable
+              k="home.careers.title"
+              locale={locale}
+              fallback={c.title}
+              as="h2"
+              className="display-2 max-w-[18ch] text-ink"
+              multiline
+            />
           </Reveal>
           <Reveal delay={100}>
-            <p className="mt-6 max-w-[44ch] text-[1rem] leading-relaxed text-ink-soft">
-              {c.intro}
-            </p>
+            <Editable
+              k="home.careers.intro"
+              locale={locale}
+              fallback={c.intro}
+              as="p"
+              className="mt-6 max-w-[44ch] text-[1rem] leading-relaxed text-ink-soft"
+              multiline
+            />
           </Reveal>
           <Reveal delay={180}>
             <Link href={`/${locale}${paths.careers}`} className="link-arrow mt-8">
-              {c.cta}
+              <Editable k="home.careers.cta" locale={locale} fallback={c.cta} as="span" />
               <ArrowRight className="size-4" />
             </Link>
           </Reveal>
@@ -48,7 +61,8 @@ export function CareersTeaser({ locale, jobs }: { locale: Locale; jobs: Job[] })
         <div className="lg:col-span-5 lg:col-start-8">
           <Reveal delay={140}>
             <p className="text-[0.8125rem] text-muted">
-              <span className="text-ink">{openJobs.length}</span> {c.open}
+              <span className="text-ink">{openJobs.length}</span>{" "}
+              <Editable k="home.careers.open" locale={locale} fallback={c.open} as="span" />
             </p>
             <ul className="mt-6">
               {openJobs.slice(0, 4).map((job) => (

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "@/components/ui/icons";
+import { EditableText } from "@/components/editor/editable-text";
 import { paths, type Locale } from "@/lib/i18n";
 import type { SiteData } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -56,10 +57,20 @@ export function ProcessSection({ locale, site }: { locale: Locale; site: SiteDat
       <div className="wrap">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <h2 className="display-2 max-w-[20ch]">{c.title}</h2>
-            <p className="mt-4 max-w-[52ch] text-[1rem] leading-relaxed text-ink-soft">
-              {site.processIntro[locale]}
-            </p>
+            <EditableText
+              k="home.process.title"
+              defaultText={c.title}
+              as="h2"
+              className="display-2 max-w-[20ch]"
+              multiline
+            />
+            <EditableText
+              k="home.process.intro"
+              defaultText={site.processIntro[locale]}
+              as="p"
+              className="mt-4 max-w-[52ch] text-[1rem] leading-relaxed text-ink-soft"
+              multiline
+            />
           </div>
           <div className="hidden items-center gap-3 lg:flex">
             <button
@@ -97,10 +108,20 @@ export function ProcessSection({ locale, site }: { locale: Locale; site: SiteDat
               key={item.title.vi}
               className={cn("lg:w-[280px] lg:shrink-0 lg:snap-start", index % 2 === 1 && "sm:mt-14 lg:mt-0")}
             >
-              <p className="display-4 leading-snug text-ink">{item.title[locale]}</p>
-              <p className="mt-2.5 text-[1rem] leading-relaxed text-ink-soft">
-                {item.body[locale]}
-              </p>
+              <EditableText
+                k={`home.process.${index}.title`}
+                defaultText={item.title[locale]}
+                as="p"
+                className="display-4 leading-snug text-ink"
+                multiline
+              />
+              <EditableText
+                k={`home.process.${index}.body`}
+                defaultText={item.body[locale]}
+                as="p"
+                className="mt-2.5 text-[1rem] leading-relaxed text-ink-soft"
+                multiline
+              />
               <div className={cn(spacers[index % spacers.length])} aria-hidden />
               <div className="relative aspect-[4/5] overflow-hidden bg-sky">
                 <Image
@@ -116,7 +137,7 @@ export function ProcessSection({ locale, site }: { locale: Locale; site: SiteDat
 
           <div className="flex items-end sm:col-span-2 lg:w-[280px] lg:shrink-0 lg:snap-start">
             <Link href={`/${locale}${paths.services}`} className="link-arrow">
-              {c.all}
+              <EditableText k="home.process.all" defaultText={c.all} as="span" />
               <ArrowRight className="size-4" />
             </Link>
           </div>

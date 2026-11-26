@@ -1,0 +1,8 @@
+[
+  { "id": "an-phat", "name": "An Phat", "logo": "/images/clients/an-phat.png", "url": "", "order": 1, "visible": true },
+  { "id": "vaeco", "name": "VAECO", "logo": "/images/clients/vaeco.png", "url": "", "order": 2, "visible": true },
+  { "id": "panasonic", "name": "Panasonic", "logo": "/images/clients/panasonic.png", "url": "", "order": 3, "visible": true },
+  { "id": "j-tech", "name": "j-TECH", "logo": "/images/clients/j-tech.png", "url": "", "order": 4, "visible": true },
+  { "id": "vitto", "name": "Vitto", "logo": "/images/clients/vitto.png", "url": "", "order": 5, "visible": true },
+  { "id": "toyoda-gosei", "name": "Toyoda Gosei", "logo": "/images/clients/toyoda-gosei.png", "url": "", "order": 6, "visible": true }
+]

@@ -19,7 +19,15 @@ import {
   StorySection,
   TestimonialsSection,
 } from "@/components/home/optional";
-import { getArticles, getJobs, getProjects, getServices, getSite } from "@/lib/content";
+import { SectionCanvas } from "@/components/editor/section-canvas";
+import {
+  getArticles,
+  getBanners,
+  getJobs,
+  getPublicProjects,
+  getServices,
+  getSite,
+} from "@/lib/content";
 import { isLocale } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
 import type { HomeSectionId } from "@/lib/types";
@@ -53,18 +61,19 @@ export default async function HomePage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  const [site, services, projects, articles, jobs] = await Promise.all([
+  const [site, services, projects, articles, jobs, banners] = await Promise.all([
     getSite(),
     getServices(),
-    getProjects(),
+    getPublicProjects(),
     getArticles(),
     getJobs(),
+    getBanners(),
   ]);
 
   const renderSection = (id: HomeSectionId) => {
     switch (id) {
       case "hero":
-        return <Hero key={id} locale={locale} site={site} />;
+        return <Hero key={id} locale={locale} site={site} banners={banners} />;
       case "about":
         return <AboutSection key={id} locale={locale} site={site} />;
       case "stats":
@@ -109,11 +118,13 @@ export default async function HomePage({
     }
   };
 
-  return (
-    <>
-      {site.homeSections
-        .filter((section) => section.enabled)
-        .map((section) => renderSection(section.id))}
-    </>
-  );
+  const sections = site.homeSections
+    .filter((section) => section.enabled)
+    .map((section) => ({
+      id: section.id,
+      label: section.label[locale],
+      node: renderSection(section.id),
+    }));
+
+  return <SectionCanvas sections={sections} />;
 }

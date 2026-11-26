@@ -1,7 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
+import { EditableImage } from "@/components/editor/editable-image";
 import { paths, type Locale } from "@/lib/i18n";
 import type { SiteData } from "@/lib/types";
 
@@ -34,12 +35,24 @@ export function ContactSection({ locale, site }: { locale: Locale; site: SiteDat
       <div className="wrap grid items-end gap-16 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-7">
           <Reveal>
-            <h2 className="display-2 max-w-[15ch] text-white">{c.title}</h2>
+            <Editable
+              k="home.contact.title"
+              locale={locale}
+              fallback={c.title}
+              as="h2"
+              className="display-2 max-w-[15ch] text-white"
+              multiline
+            />
           </Reveal>
           <Reveal delay={100}>
-            <p className="mt-6 max-w-[46ch] text-[1rem] leading-relaxed text-white/65">
-              {c.intro}
-            </p>
+            <Editable
+              k="home.contact.intro"
+              locale={locale}
+              fallback={c.intro}
+              as="p"
+              className="mt-6 max-w-[46ch] text-[1rem] leading-relaxed text-white/65"
+              multiline
+            />
           </Reveal>
 
           <Reveal delay={180}>
@@ -51,10 +64,19 @@ export function ContactSection({ locale, site }: { locale: Locale; site: SiteDat
                 >
                   {site.contact.hotlineDisplay}
                 </a>
-                <p className="mt-2 text-[0.8125rem] text-white/65">{c.hotline}</p>
+                <p className="mt-2 text-[0.8125rem] text-white/65">
+                  <Editable
+                    k="home.contact.hotline"
+                    locale={locale}
+                    fallback={c.hotline}
+                    as="span"
+                  />
+                </p>
               </div>
               <div>
-                <p className="text-[0.8125rem] text-white/65">{c.email}</p>
+                <p className="text-[0.8125rem] text-white/65">
+                  <Editable k="home.contact.email" locale={locale} fallback={c.email} as="span" />
+                </p>
                 <a
                   href={`mailto:${site.contact.email}`}
                   className="mt-1 inline-flex items-baseline gap-2 text-[1rem] text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-accent"
@@ -69,11 +91,12 @@ export function ContactSection({ locale, site }: { locale: Locale; site: SiteDat
           <Reveal delay={240}>
             <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-10">
               <Link href={`/${locale}${paths.contact}#quote`} className="btn btn-primary">
-                {c.action}
+                <Editable k="home.contact.action" locale={locale} fallback={c.action} as="span" />
                 <ArrowRight className="size-4" />
               </Link>
               <p className="text-[0.8125rem] text-white/65">
-                {c.hours}: {site.contact.workingHours}
+                <Editable k="home.contact.hours" locale={locale} fallback={c.hours} as="span" />:{" "}
+                {site.contact.workingHours}
               </p>
             </div>
           </Reveal>
@@ -81,7 +104,8 @@ export function ContactSection({ locale, site }: { locale: Locale; site: SiteDat
 
         <Reveal className="lg:col-span-4 lg:col-start-9" delay={160}>
           <div className="relative aspect-[4/5] w-full max-w-[320px] overflow-hidden bg-navy-2 lg:ml-auto">
-            <Image
+            <EditableImage
+              k="home.contact.image"
               src="/images/about/systems.jpg"
               alt={
                 locale === "vi"

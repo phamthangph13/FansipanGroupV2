@@ -1,0 +1,53 @@
+[
+  {
+    "id": "hero-cooling",
+    "title": { "vi": "Hệ thống tháp giải nhiệt", "en": "Cooling tower systems" },
+    "subtitle": {
+      "vi": "Thi công, cải tạo và bảo trì hệ thống tháp giải nhiệt cho nhà máy công nghiệp.",
+      "en": "Installation, upgrade and maintenance of cooling tower systems for industrial plants."
+    },
+    "image": "/images/about/cooling.jpg",
+    "alt": {
+      "vi": "Hệ thống tháp giải nhiệt và đường ống tại nhà máy",
+      "en": "Cooling towers and pipework at an industrial plant"
+    },
+    "href": "/vi/lien-he#quote",
+    "ctaLabel": { "vi": "Yêu cầu khảo sát", "en": "Request a survey" },
+    "order": 1,
+    "visible": true
+  },
+  {
+    "id": "hero-pullman",
+    "title": { "vi": "Khách sạn Pullman Hà Nội", "en": "Pullman Hanoi Hotel" },
+    "subtitle": {
+      "vi": "Cung cấp, lắp đặt đường ống và tháp giải nhiệt cho công trình khách sạn.",
+      "en": "Piping and cooling tower supply and installation for a hospitality project."
+    },
+    "image": "/images/projects/pullman-ha-noi.jpg",
+    "alt": {
+      "vi": "Khách sạn Pullman Hà Nội nhìn từ phố",
+      "en": "Pullman Hanoi hotel seen from the street"
+    },
+    "href": "/vi/du-an",
+    "ctaLabel": { "vi": "Xem dự án", "en": "View project" },
+    "order": 2,
+    "visible": true
+  },
+  {
+    "id": "hero-plant",
+    "title": { "vi": "Nhà máy nhiệt điện", "en": "Thermal power plant" },
+    "subtitle": {
+      "vi": "Bảo dưỡng tổng thể hệ thống làm mát lò hơi và thiết bị công nghiệp.",
+      "en": "Major maintenance of boiler cooling systems and industrial equipment."
+    },
+    "image": "/images/about/plant.jpg",
+    "alt": {
+      "vi": "Tháp giải nhiệt nhà máy nhiệt điện về đêm",
+      "en": "Cooling towers of a thermal power plant at night"
+    },
+    "href": "/vi/du-an",
+    "ctaLabel": { "vi": "Xem dự án", "en": "View project" },
+    "order": 3,
+    "visible": true
+  }
+]

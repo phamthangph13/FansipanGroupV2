@@ -1,14 +1,25 @@
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 
 const okMessages: Record<string, string> = {
-  saved: "Đã lưu thay đổi.",
+  saved: "Đã lưu thay đổi vào MongoDB.",
   deleted: "Đã xoá mục đã chọn.",
   updated: "Đã cập nhật trạng thái.",
+  "password-updated": "Đã đổi mật khẩu quản trị viên.",
 };
 
 const errorMessages: Record<string, string> = {
-  "missing-name": "Vui lòng nhập tên dự án.",
+  "missing-name": "Vui lòng nhập tên.",
   "missing-title": "Vui lòng nhập tiêu đề.",
+  "missing-key": "Vui lòng nhập khóa nội dung.",
+  "missing-file": "Vui lòng chọn tệp cần tải lên.",
+  "missing-image": "Vui lòng chọn ảnh hoặc nhập đường dẫn ảnh.",
+  "invalid-file": "Tệp không đúng định dạng cho phép.",
+  "too-large": "Tệp vượt quá dung lượng cho phép.",
+  "extract-failed": "Không đọc được nội dung tệp. Hãy thử PDF hoặc DOCX khác.",
+  "missing-password": "Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới.",
+  "password-mismatch": "Xác nhận mật khẩu mới không khớp.",
+  "invalid-current": "Mật khẩu hiện tại không đúng.",
+  "weak-password": "Mật khẩu mới phải có ít nhất 6 ký tự.",
   unauthorized: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
 };
 

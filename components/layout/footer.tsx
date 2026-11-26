@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Editable } from "@/components/editor/editable";
 import { paths, type Locale } from "@/lib/i18n";
 import type { SiteData } from "@/lib/types";
 
@@ -7,13 +8,13 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
   const vi = locale === "vi";
 
   const nav = [
-    { label: vi ? "Giới thiệu" : "About", href: paths.about },
-    { label: vi ? "Dịch vụ" : "Services", href: paths.services },
-    { label: vi ? "Dự án" : "Projects", href: paths.projects },
-    { label: vi ? "Hồ sơ năng lực" : "Company profile", href: paths.profile },
-    { label: vi ? "Tin tức" : "News", href: paths.news },
-    { label: vi ? "Tuyển dụng" : "Careers", href: paths.careers },
-    { label: vi ? "Liên hệ" : "Contact", href: paths.contact },
+    { label: vi ? "Giới thiệu" : "About", href: paths.about, key: "nav.about" },
+    { label: vi ? "Dịch vụ" : "Services", href: paths.services, key: "nav.services" },
+    { label: vi ? "Dự án" : "Projects", href: paths.projects, key: "nav.projects" },
+    { label: vi ? "Hồ sơ năng lực" : "Company profile", href: paths.profile, key: "nav.profile" },
+    { label: vi ? "Tin tức" : "News", href: paths.news, key: "nav.news" },
+    { label: vi ? "Tuyển dụng" : "Careers", href: paths.careers, key: "nav.careers" },
+    { label: vi ? "Liên hệ" : "Contact", href: paths.contact, key: "nav.contact" },
   ];
 
   const socials = [
@@ -27,7 +28,9 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
     <footer className="flex flex-col bg-sky-2 text-ink lg:min-h-[72svh]">
       <div className="wrap grid gap-x-8 gap-y-12 pt-16 pb-20 sm:grid-cols-2 lg:grid-cols-12 lg:pt-20">
         <div className="lg:col-span-4">
-          <p className="font-display text-[1rem] text-ink">{vi ? "Văn phòng" : "Offices"}</p>
+          <p className="font-display text-[1rem] text-ink">
+            <Editable k="footer.offices" locale={locale} fallback={vi ? "Văn phòng" : "Offices"} as="span" />
+          </p>
           <div className="mt-5 space-y-6">
             {site.offices.map((office) => (
               <a
@@ -46,7 +49,12 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
 
         <div className="lg:col-span-3">
           <p className="font-display text-[1rem] text-ink">
-            {vi ? "Điều hướng" : "Navigation"}
+            <Editable
+              k="footer.navigation"
+              locale={locale}
+              fallback={vi ? "Điều hướng" : "Navigation"}
+              as="span"
+            />
           </p>
           <ul className="mt-5 space-y-2.5">
             {nav.map((item) => (
@@ -55,7 +63,7 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
                   href={`/${locale}${item.href}`}
                   className="text-[1rem] text-ink-soft transition-colors hover:text-ink"
                 >
-                  {item.label}
+                  <Editable k={item.key} locale={locale} fallback={item.label} as="span" />
                 </Link>
               </li>
             ))}
@@ -63,7 +71,9 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
         </div>
 
         <div className="lg:col-span-3">
-          <p className="font-display text-[1rem] text-ink">{vi ? "Liên hệ" : "Contact"}</p>
+          <p className="font-display text-[1rem] text-ink">
+            <Editable k="footer.contact" locale={locale} fallback={vi ? "Liên hệ" : "Contact"} as="span" />
+          </p>
           <ul className="mt-5 space-y-2.5 text-[1rem] text-ink-soft">
             <li>
               <a href={`tel:${site.contact.hotline}`} className="num transition-colors hover:text-ink">
@@ -90,7 +100,9 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
         </div>
 
         <div className="lg:col-span-2">
-          <p className="font-display text-[1rem] text-ink">{vi ? "Kết nối" : "Follow"}</p>
+          <p className="font-display text-[1rem] text-ink">
+            <Editable k="footer.follow" locale={locale} fallback={vi ? "Kết nối" : "Follow"} as="span" />
+          </p>
           <ul className="mt-5 space-y-2.5">
             {socials.map((social) => (
               <li key={social.label}>
@@ -121,13 +133,23 @@ export function Footer({ locale, site }: { locale: Locale; site: SiteData }) {
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <a href="/image-credits.html" className="transition-colors hover:text-ink">
-              {vi ? "Nguồn ảnh" : "Image credits"}
+              <Editable
+                k="footer.imageCredits"
+                locale={locale}
+                fallback={vi ? "Nguồn ảnh" : "Image credits"}
+                as="span"
+              />
             </a>
             <Link
               href={`/${locale}${paths.privacy}`}
               className="transition-colors hover:text-ink"
             >
-              {vi ? "Chính sách bảo mật" : "Privacy policy"}
+              <Editable
+                k="footer.privacy"
+                locale={locale}
+                fallback={vi ? "Chính sách bảo mật" : "Privacy policy"}
+                as="span"
+              />
             </Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { projectStatusLabels } from "@/lib/labels";
-import type { Locale } from "@/lib/i18n";
+import { paths, type Locale } from "@/lib/i18n";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -30,33 +31,35 @@ export function ProjectCard({
       className="card-enter group mb-12 break-inside-avoid"
       style={{ animationDelay: `${(index % 9) * 55}ms` }}
     >
-      <div className={cn("relative overflow-hidden bg-sky", ratios[index % ratios.length])}>
-        {project.image ? (
-          <Image
-            src={project.image}
-            alt={
-              locale === "vi"
-                ? `Hình ảnh minh họa cho ${project.name}`
-                : `Illustrative image for ${project.nameEn}`
-            }
-            fill
-            sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
-            className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-brand-100">
-            <Image src="/brand/mark.png" alt="" width={44} height={44} className="opacity-25" />
-          </div>
-        )}
-      </div>
+      <Link href={`/${locale}${paths.projects}/${project.id}`} className="block">
+        <div className={cn("relative overflow-hidden bg-sky", ratios[index % ratios.length])}>
+          {project.image ? (
+            <Image
+              src={project.image}
+              alt={
+                locale === "vi"
+                  ? `Hình ảnh minh họa cho ${project.name}`
+                  : `Illustrative image for ${project.nameEn}`
+              }
+              fill
+              sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
+              className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-brand-100">
+              <Image src="/brand/mark.png" alt="" width={44} height={44} className="opacity-25" />
+            </div>
+          )}
+        </div>
 
-      <h3 className="mt-4 display-4 text-ink transition-colors group-hover:text-brand">
-        {name}
-      </h3>
-      <p className="mt-2 text-[1rem] leading-relaxed text-ink-soft">{project.scope[locale]}</p>
-      <p className="mt-1.5 text-[0.8125rem] text-ink-soft">
-        {[project.location[locale], project.year, status].filter(Boolean).join(" · ")}
-      </p>
+        <h3 className="mt-4 display-4 text-ink transition-colors group-hover:text-brand">
+          {name}
+        </h3>
+        <p className="mt-2 text-[1rem] leading-relaxed text-ink-soft">{project.scope[locale]}</p>
+        <p className="mt-1.5 text-[0.8125rem] text-ink-soft">
+          {[project.location[locale], project.year, status].filter(Boolean).join(" · ")}
+        </p>
+      </Link>
     </article>
   );
 }

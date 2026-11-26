@@ -2,32 +2,59 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { adminLoginPath } from "@/lib/admin-path";
 import {
   checkPassword,
   clearSessionCookie,
   requireAdmin,
   setSessionCookie,
+  updateAdminPassword,
 } from "@/lib/auth";
 import {
+  deleteApplicationById,
+  deleteArticleBySlug,
+  deleteBannerById,
+  deleteCapabilityDocById,
+  deleteContentOverride,
+  deleteJobBySlug,
+  deletePartnerById,
+  deleteProjectById,
+  deleteSubmissionById,
   getAllArticles,
-  getApplications,
+  getAllBanners,
+  getAllCapabilityDocs,
+  getAllPartners,
   getJobs,
-  getProjects,
-  getSite,
-  getSubmissions,
-  writeJson,
+  getProjectsUncached,
+  getSiteUncached,
+  markAllApplicationsAsRead,
+  markAllSubmissionsAsRead,
+  resetAllContentOverrides,
+  saveSiteData,
+  setContentOverrideBoth,
+  toggleApplicationReadById,
+  toggleSubmissionReadById,
+  upsertArticle,
+  upsertBanner,
+  upsertCapabilityDoc,
+  upsertJob,
+  upsertPartner,
+  upsertProject,
 } from "@/lib/content";
-import { deleteCv } from "@/lib/storage";
+import { categorizeText, extractDocument, keywordTags } from "@/lib/import";
+import { deleteCv, savePublicUpload } from "@/lib/storage";
 import type {
-  Application,
   Article,
   ArticleCategory,
+  Banner,
+  CapabilityDoc,
+  CapabilityKind,
   Job,
+  Partner,
   Project,
   ProjectStatus,
   ServiceId,
   SiteData,
-  Submission,
 } from "@/lib/types";
 
 /* ------------------------------------------------------------------ Helpers */
@@ -89,14 +116,35 @@ export async function loginAction(
 ): Promise<{ error: string }> {
   const password = value(formData, "password");
   if (!password) return { error: "Vui lòng nhập mật khẩu." };
-  if (!checkPassword(password)) return { error: "Mật khẩu không đúng. Vui lòng thử lại." };
+  if (!(await checkPassword(password))) {
+    return { error: "Mật khẩu không đúng. Vui lòng thử lại." };
+  }
   await setSessionCookie();
   redirect("/admin");
 }
 
 export async function logoutAction() {
   await clearSessionCookie();
-  redirect("/admin/login");
+  redirect(adminLoginPath());
+}
+
+export async function changePasswordAction(formData: FormData) {
+  await requireAdmin();
+  const currentPassword = value(formData, "currentPassword");
+  const newPassword = value(formData, "newPassword");
+  const confirmPassword = value(formData, "confirmPassword");
+
+  if (!currentPassword || !newPassword) {
+    redirect("/admin/cai-dat?error=missing-password#bao-mat");
+  }
+  if (newPassword !== confirmPassword) {
+    redirect("/admin/cai-dat?error=password-mismatch#bao-mat");
+  }
+  const result = await updateAdminPassword(currentPassword, newPassword);
+  if (!result.ok) {
+    redirect(`/admin/cai-dat?error=${result.error}#bao-mat`);
+  }
+  redirect("/admin/cai-dat?ok=password-updated#bao-mat");
 }
 
 /* ------------------------------------------------------------- Submissions */
@@ -104,22 +152,14 @@ export async function logoutAction() {
 export async function toggleSubmissionRead(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
-  const items = await getSubmissions();
-  const next: Submission[] = items.map((item) =>
-    item.id === id ? { ...item, read: !item.read } : item,
-  );
-  await writeJson("submissions.json", next);
+  await toggleSubmissionReadById(id);
   revalidatePath("/admin/yeu-cau");
   revalidatePath("/admin");
 }
 
 export async function markAllSubmissionsRead() {
   await requireAdmin();
-  const items = await getSubmissions();
-  await writeJson(
-    "submissions.json",
-    items.map((item) => ({ ...item, read: true })),
-  );
+  await markAllSubmissionsAsRead();
   revalidatePath("/admin/yeu-cau");
   revalidatePath("/admin");
 }
@@ -127,11 +167,7 @@ export async function markAllSubmissionsRead() {
 export async function deleteSubmission(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
-  const items = await getSubmissions();
-  await writeJson(
-    "submissions.json",
-    items.filter((item) => item.id !== id),
-  );
+  await deleteSubmissionById(id);
   revalidatePath("/admin/yeu-cau");
   revalidatePath("/admin");
   redirect("/admin/yeu-cau?ok=deleted");
@@ -142,22 +178,14 @@ export async function deleteSubmission(formData: FormData) {
 export async function toggleApplicationRead(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
-  const items = await getApplications();
-  const next: Application[] = items.map((item) =>
-    item.id === id ? { ...item, read: !item.read } : item,
-  );
-  await writeJson("applications.json", next);
+  await toggleApplicationReadById(id);
   revalidatePath("/admin/ung-tuyen");
   revalidatePath("/admin");
 }
 
 export async function markAllApplicationsRead() {
   await requireAdmin();
-  const items = await getApplications();
-  await writeJson(
-    "applications.json",
-    items.map((item) => ({ ...item, read: true })),
-  );
+  await markAllApplicationsAsRead();
   revalidatePath("/admin/ung-tuyen");
   revalidatePath("/admin");
 }
@@ -165,13 +193,8 @@ export async function markAllApplicationsRead() {
 export async function deleteApplication(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
-  const items = await getApplications();
-  const target = items.find((item) => item.id === id);
-  if (target) await deleteCv(target.cvFile);
-  await writeJson(
-    "applications.json",
-    items.filter((item) => item.id !== id),
-  );
+  const deleted = await deleteApplicationById(id);
+  if (deleted) await deleteCv(deleted.cvFile);
   revalidatePath("/admin/ung-tuyen");
   revalidatePath("/admin");
   redirect("/admin/ung-tuyen?ok=deleted");
@@ -182,14 +205,14 @@ export async function deleteApplication(formData: FormData) {
 export async function toggleHomeSection(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
-  const site = await getSite();
+  const site = await getSiteUncached();
   const next: SiteData = {
     ...site,
     homeSections: site.homeSections.map((section) =>
       section.id === id ? { ...section, enabled: !section.enabled } : section,
     ),
   };
-  await writeJson("site.json", next);
+  await saveSiteData(next);
   revalidatePath("/admin/trang-chu");
   refreshPublic();
 }
@@ -198,14 +221,14 @@ export async function moveHomeSection(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
   const direction = value(formData, "direction");
-  const site = await getSite();
+  const site = await getSiteUncached();
   const sections = [...site.homeSections];
   const index = sections.findIndex((section) => section.id === id);
   const target = direction === "up" ? index - 1 : index + 1;
   if (index >= 0 && target >= 0 && target < sections.length) {
     [sections[index], sections[target]] = [sections[target], sections[index]];
   }
-  await writeJson("site.json", { ...site, homeSections: sections });
+  await saveSiteData({ ...site, homeSections: sections });
   revalidatePath("/admin/trang-chu");
   refreshPublic();
 }
@@ -219,7 +242,7 @@ export async function saveProject(formData: FormData) {
   const nameEn = value(formData, "nameEn") || name;
   if (!name) redirect("/admin/du-an?error=missing-name");
 
-  const projects = await getProjects();
+  const projects = await getProjectsUncached();
   let id = value(formData, "id") || slugify(nameEn || name);
   if (!originalId && projects.some((item) => item.id === id)) {
     id = `${id}-${Date.now().toString(36).slice(-4)}`;
@@ -230,6 +253,59 @@ export async function saveProject(formData: FormData) {
   const categories = serviceIds.filter((serviceId) =>
     checked(formData, `category_${serviceId}`),
   );
+
+  let image = value(formData, "image");
+  const imageUpload = formData.get("imageFile");
+  if (imageUpload instanceof File && imageUpload.size > 0) {
+    const stored = await savePublicUpload(imageUpload, "projects", "image");
+    if (!stored.ok) {
+      redirect(`/admin/du-an/${originalId || "new"}?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    image = stored.url;
+  }
+
+  let clientLogo = value(formData, "clientLogo");
+  const logoUpload = formData.get("clientLogoFile");
+  if (logoUpload instanceof File && logoUpload.size > 0) {
+    const stored = await savePublicUpload(logoUpload, "partners", "image");
+    if (!stored.ok) {
+      redirect(`/admin/du-an/${originalId || "new"}?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    clientLogo = stored.url;
+  }
+
+  const gallery = value(formData, "gallery")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 30);
+
+  const galleryFiles = formData.getAll("galleryFiles");
+  for (const entry of galleryFiles) {
+    if (entry instanceof File && entry.size > 0 && gallery.length < 30) {
+      const stored = await savePublicUpload(entry, "projects", "image");
+      if (stored.ok) gallery.push(stored.url);
+    }
+  }
+
+  const documents = value(formData, "documents")
+    .split(/\r?\n/)
+    .map((line) => {
+      const [title, ...rest] = line.split("|");
+      const file = rest.join("|").trim();
+      return title?.trim() && file ? { title: title.trim(), file } : null;
+    })
+    .filter((item): item is { title: string; file: string } => item !== null)
+    .slice(0, 30);
+
+  const docUpload = formData.get("documentFile");
+  if (docUpload instanceof File && docUpload.size > 0 && documents.length < 30) {
+    const stored = await savePublicUpload(docUpload, "documents", "document");
+    if (stored.ok) {
+      const docTitle = value(formData, "documentTitle") || docUpload.name.replace(/\.[^.]+$/, "");
+      documents.push({ title: docTitle, file: stored.url });
+    }
+  }
 
   const project: Project = {
     id,
@@ -242,15 +318,17 @@ export async function saveProject(formData: FormData) {
     categories,
     featured: checked(formData, "featured"),
     allowPublic: checked(formData, "allowPublic"),
-    image: value(formData, "image") || null,
-    clientLogo: value(formData, "clientLogo") || null,
+    image: image || null,
+    clientLogo: clientLogo || null,
+    body: localized(formData, "body"),
+    gallery,
+    documents,
+    sector: localized(formData, "sector"),
+    client: localized(formData, "client"),
+    duration: localized(formData, "duration"),
   };
 
-  const next = originalId
-    ? projects.map((item) => (item.id === originalId ? project : item))
-    : [project, ...projects];
-
-  await writeJson("projects.json", next);
+  await upsertProject(project, originalId || undefined);
   revalidatePath("/admin/du-an");
   refreshPublic();
   redirect("/admin/du-an?ok=saved");
@@ -259,11 +337,7 @@ export async function saveProject(formData: FormData) {
 export async function deleteProject(formData: FormData) {
   await requireAdmin();
   const id = value(formData, "id");
-  const projects = await getProjects();
-  await writeJson(
-    "projects.json",
-    projects.filter((item) => item.id !== id),
-  );
+  await deleteProjectById(id);
   revalidatePath("/admin/du-an");
   refreshPublic();
   redirect("/admin/du-an?ok=deleted");
@@ -283,30 +357,54 @@ export async function saveArticle(formData: FormData) {
     slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
   }
 
+  const existing = originalSlug
+    ? articles.find((item) => item.slug === originalSlug)
+    : undefined;
   const categoryRaw = value(formData, "category") as ArticleCategory;
   const category = articleCategories.includes(categoryRaw) ? categoryRaw : "tin-tuc";
   const readingMinutes = Math.min(
     120,
     Math.max(1, Number(value(formData, "readingMinutes")) || 5),
   );
+  const autoCategory = checked(formData, "autoCategory");
+  const body = localized(formData, "body");
+  const excerpt = localized(formData, "excerpt");
+
+  let tags = value(formData, "tags")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  if (tags.length === 0) {
+    tags = keywordTags(`${title.vi} ${body.vi}`, 5);
+  }
+
+  let image = value(formData, "image");
+  const imageUpload = formData.get("imageFile");
+  if (imageUpload instanceof File && imageUpload.size > 0) {
+    const stored = await savePublicUpload(imageUpload, "news", "image");
+    if (!stored.ok) {
+      redirect(`/admin/tin-tuc/${originalSlug || "new"}?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    image = stored.url;
+  }
 
   const article: Article = {
     slug,
-    category,
-    title,
-    excerpt: localized(formData, "excerpt"),
-    body: localized(formData, "body"),
+    category: autoCategory ? categorizeText(title.vi, `${excerpt.vi} ${body.vi}`) : category,
+    title: { vi: title.vi, en: title.en || title.vi },
+    excerpt: { vi: excerpt.vi, en: excerpt.en || excerpt.vi },
+    body: { vi: body.vi, en: body.en || body.vi },
     date: value(formData, "date") || new Date().toISOString().slice(0, 10),
     readingMinutes,
     published: checked(formData, "published"),
-    image: value(formData, "image") || null,
+    image: image || null,
+    autoCategory,
+    sourceFile: value(formData, "sourceFile") || existing?.sourceFile || null,
+    tags,
   };
 
-  const next = originalSlug
-    ? articles.map((item) => (item.slug === originalSlug ? article : item))
-    : [article, ...articles];
-
-  await writeJson("news.json", next);
+  await upsertArticle(article, originalSlug || undefined);
   revalidatePath("/admin/tin-tuc");
   refreshPublic();
   redirect("/admin/tin-tuc?ok=saved");
@@ -315,11 +413,7 @@ export async function saveArticle(formData: FormData) {
 export async function deleteArticle(formData: FormData) {
   await requireAdmin();
   const slug = value(formData, "slug");
-  const articles = await getAllArticles();
-  await writeJson(
-    "news.json",
-    articles.filter((item) => item.slug !== slug),
-  );
+  await deleteArticleBySlug(slug);
   revalidatePath("/admin/tin-tuc");
   refreshPublic();
   redirect("/admin/tin-tuc?ok=deleted");
@@ -353,11 +447,7 @@ export async function saveJob(formData: FormData) {
     body: localized(formData, "body"),
   };
 
-  const next = originalSlug
-    ? jobs.map((item) => (item.slug === originalSlug ? job : item))
-    : [job, ...jobs];
-
-  await writeJson("jobs.json", next);
+  await upsertJob(job, originalSlug || undefined);
   revalidatePath("/admin/tuyen-dung");
   refreshPublic();
   redirect("/admin/tuyen-dung?ok=saved");
@@ -366,11 +456,7 @@ export async function saveJob(formData: FormData) {
 export async function deleteJob(formData: FormData) {
   await requireAdmin();
   const slug = value(formData, "slug");
-  const jobs = await getJobs();
-  await writeJson(
-    "jobs.json",
-    jobs.filter((item) => item.slug !== slug),
-  );
+  await deleteJobBySlug(slug);
   revalidatePath("/admin/tuyen-dung");
   refreshPublic();
   redirect("/admin/tuyen-dung?ok=deleted");
@@ -380,7 +466,7 @@ export async function deleteJob(formData: FormData) {
 
 export async function saveSettings(formData: FormData) {
   await requireAdmin();
-  const site = await getSite();
+  const site = await getSiteUncached();
 
   const next: SiteData = {
     ...site,
@@ -443,8 +529,362 @@ export async function saveSettings(formData: FormData) {
     },
   };
 
-  await writeJson("site.json", next);
+  await saveSiteData(next);
   revalidatePath("/admin/cai-dat");
   refreshPublic();
   redirect("/admin/cai-dat?ok=saved");
+}
+
+/* ------------------------------------------------------------------ Banners */
+
+export async function saveBanner(formData: FormData) {
+  await requireAdmin();
+  const originalId = value(formData, "originalId");
+  const title = localized(formData, "title");
+  if (!title.vi) redirect("/admin/banner?error=missing-title");
+
+  const banners = await getAllBanners();
+  let id = originalId || value(formData, "id") || slugify(title.vi);
+  if (!originalId && banners.some((item) => item.id === id)) {
+    id = `${id}-${Date.now().toString(36).slice(-4)}`;
+  }
+
+  let image = value(formData, "image");
+  const upload = formData.get("imageFile");
+  if (upload instanceof File && upload.size > 0) {
+    const stored = await savePublicUpload(upload, "banners", "image");
+    if (!stored.ok) {
+      redirect(`/admin/banner?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    image = stored.url;
+  }
+  if (!image) redirect("/admin/banner?error=missing-image");
+
+  const banner: Banner = {
+    id,
+    title,
+    subtitle: localized(formData, "subtitle"),
+    image,
+    alt: {
+      vi: value(formData, "altVi") || title.vi,
+      en: value(formData, "altEn") || title.en || title.vi,
+    },
+    href: value(formData, "href") || "/vi/lien-he#quote",
+    ctaLabel: localized(formData, "ctaLabel"),
+    order: numberOrNull(formData, "order") ?? banners.length + 1,
+    visible: checked(formData, "visible"),
+  };
+
+  await upsertBanner(banner, originalId || undefined);
+  revalidatePath("/admin/banner");
+  refreshPublic();
+  redirect("/admin/banner?ok=saved");
+}
+
+export async function deleteBanner(formData: FormData) {
+  await requireAdmin();
+  const id = value(formData, "id");
+  await deleteBannerById(id);
+  revalidatePath("/admin/banner");
+  refreshPublic();
+  redirect("/admin/banner?ok=deleted");
+}
+
+/* ----------------------------------------------------------------- Partners */
+
+export async function savePartner(formData: FormData) {
+  await requireAdmin();
+  const originalId = value(formData, "originalId");
+  const name = value(formData, "name");
+  if (!name) redirect("/admin/doi-tac?error=missing-name");
+
+  const partners = await getAllPartners();
+  let id = originalId || value(formData, "id") || slugify(name);
+  if (!originalId && partners.some((item) => item.id === id)) {
+    id = `${id}-${Date.now().toString(36).slice(-4)}`;
+  }
+
+  let logo = value(formData, "logo");
+  const upload = formData.get("logoFile");
+  if (upload instanceof File && upload.size > 0) {
+    const stored = await savePublicUpload(upload, "partners", "image");
+    if (!stored.ok) {
+      redirect(`/admin/doi-tac?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    logo = stored.url;
+  }
+
+  const partner: Partner = {
+    id,
+    name,
+    logo: logo || null,
+    url: value(formData, "url"),
+    order: numberOrNull(formData, "order") ?? partners.length + 1,
+    visible: checked(formData, "visible"),
+  };
+
+  await upsertPartner(partner, originalId || undefined);
+  revalidatePath("/admin/doi-tac");
+  refreshPublic();
+  redirect("/admin/doi-tac?ok=saved");
+}
+
+export async function deletePartner(formData: FormData) {
+  await requireAdmin();
+  const id = value(formData, "id");
+  await deletePartnerById(id);
+  revalidatePath("/admin/doi-tac");
+  refreshPublic();
+  redirect("/admin/doi-tac?ok=deleted");
+}
+
+/* -------------------------------------------------------- Capability files */
+
+const capabilityKinds: CapabilityKind[] = ["profile", "brochure", "certificate", "other"];
+
+export async function saveCapability(formData: FormData) {
+  await requireAdmin();
+  const originalId = value(formData, "originalId");
+  const title = localized(formData, "title");
+  if (!title.vi) redirect("/admin/ho-so?error=missing-title");
+
+  const docs = await getAllCapabilityDocs();
+  let id = originalId || value(formData, "id") || slugify(title.vi);
+  if (!originalId && docs.some((item) => item.id === id)) {
+    id = `${id}-${Date.now().toString(36).slice(-4)}`;
+  }
+
+  let file = value(formData, "file");
+  const upload = formData.get("fileUpload");
+  if (upload instanceof File && upload.size > 0) {
+    const stored = await savePublicUpload(upload, "capabilities", "document");
+    if (!stored.ok) {
+      redirect(`/admin/ho-so?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    file = stored.url;
+  }
+  if (!file) redirect("/admin/ho-so?error=missing-file");
+
+  let cover = value(formData, "cover");
+  const coverUpload = formData.get("coverFile");
+  if (coverUpload instanceof File && coverUpload.size > 0) {
+    const stored = await savePublicUpload(coverUpload, "capabilities", "image");
+    if (!stored.ok) {
+      redirect(`/admin/ho-so?error=${stored.error === "size" ? "too-large" : "invalid-file"}`);
+    }
+    cover = stored.url;
+  }
+
+  const kindRaw = value(formData, "kind") as CapabilityKind;
+  const doc: CapabilityDoc = {
+    id,
+    title,
+    description: localized(formData, "description"),
+    file,
+    cover: cover || null,
+    kind: capabilityKinds.includes(kindRaw) ? kindRaw : "other",
+    order: numberOrNull(formData, "order") ?? docs.length + 1,
+    visible: checked(formData, "visible"),
+  };
+
+  await upsertCapabilityDoc(doc, originalId || undefined);
+  revalidatePath("/admin/ho-so");
+  refreshPublic();
+  redirect("/admin/ho-so?ok=saved");
+}
+
+export async function deleteCapability(formData: FormData) {
+  await requireAdmin();
+  const id = value(formData, "id");
+  await deleteCapabilityDocById(id);
+  revalidatePath("/admin/ho-so");
+  refreshPublic();
+  redirect("/admin/ho-so?ok=deleted");
+}
+
+/* ------------------------------------------------------------- Import docs */
+
+export async function importDocumentAction(formData: FormData) {
+  await requireAdmin();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    redirect("/admin/nhap-lieu?error=missing-file");
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    redirect("/admin/nhap-lieu?error=too-large");
+  }
+
+  let doc: Awaited<ReturnType<typeof extractDocument>> | null = null;
+  try {
+    doc = await extractDocument(file.name, Buffer.from(await file.arrayBuffer()));
+  } catch {
+    redirect("/admin/nhap-lieu?error=extract-failed");
+  }
+  if (!doc) redirect("/admin/nhap-lieu?error=extract-failed");
+
+  const target = value(formData, "target") === "project" ? "project" : "article";
+  const titleOverride = value(formData, "title");
+  const title = titleOverride || doc.title;
+  const categoryRaw = value(formData, "category") as ArticleCategory | "auto";
+  const useAuto = categoryRaw === "auto" || !categoryRaw;
+  const category = useAuto
+    ? doc.category
+    : articleCategories.includes(categoryRaw as ArticleCategory)
+      ? (categoryRaw as ArticleCategory)
+      : doc.category;
+  const published = checked(formData, "published");
+
+  if (target === "project") {
+    const projects = await getProjectsUncached();
+    let id = slugify(title);
+    if (projects.some((item) => item.id === id)) {
+      id = `${id}-${Date.now().toString(36).slice(-4)}`;
+    }
+    const storedDoc = await savePublicUpload(file, "documents", "document");
+    const project: Project = {
+      id,
+      name: title,
+      nameEn: value(formData, "titleEn") || title,
+      scope: { vi: doc.excerpt, en: value(formData, "excerptEn") || doc.excerpt },
+      location: { vi: doc.projectMeta.location, en: doc.projectMeta.location },
+      year: doc.projectMeta.year,
+      status: doc.projectMeta.status,
+      categories: doc.projectMeta.categories,
+      featured: false,
+      allowPublic: published,
+      image: null,
+      clientLogo: null,
+      body: { vi: doc.body, en: value(formData, "bodyEn") || "" },
+      gallery: [],
+      documents: storedDoc.ok ? [{ title, file: storedDoc.url }] : [],
+      sector: { vi: doc.projectMeta.sector, en: doc.projectMeta.sector },
+      client: { vi: doc.projectMeta.client, en: doc.projectMeta.client },
+      duration: { vi: doc.projectMeta.duration, en: doc.projectMeta.duration },
+    };
+    await upsertProject(project);
+    revalidatePath("/admin/du-an");
+    refreshPublic();
+    redirect(`/admin/du-an/${id}?ok=saved`);
+  }
+
+  const articles = await getAllArticles();
+  let slug = slugify(title);
+  if (articles.some((item) => item.slug === slug)) {
+    slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+  }
+
+  const article: Article = {
+    slug,
+    category,
+    title: { vi: title, en: value(formData, "titleEn") || title },
+    excerpt: {
+      vi: value(formData, "excerpt") || doc.excerpt,
+      en: value(formData, "excerptEn") || doc.excerpt,
+    },
+    body: { vi: doc.body, en: value(formData, "bodyEn") || "" },
+    date: value(formData, "date") || new Date().toISOString().slice(0, 10),
+    readingMinutes: doc.readingMinutes,
+    published,
+    image: null,
+    autoCategory: useAuto,
+    sourceFile: file.name,
+    tags: doc.tags,
+  };
+
+  await upsertArticle(article);
+  revalidatePath("/admin/tin-tuc");
+  refreshPublic();
+  redirect(`/admin/tin-tuc/${slug}?ok=saved`);
+}
+
+/* --------------------------------------------------------- Content overrides */
+
+export async function saveContentEntry(formData: FormData) {
+  await requireAdmin();
+  const key = value(formData, "key");
+  if (!key) redirect("/admin/noi-dung?error=missing-key");
+
+  await setContentOverrideBoth(key, {
+    vi: value(formData, "vi"),
+    en: value(formData, "en"),
+  });
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/noi-dung");
+  redirect("/admin/noi-dung?ok=saved");
+}
+
+export async function resetContentEntry(formData: FormData) {
+  await requireAdmin();
+  const key = value(formData, "key");
+  await deleteContentOverride(key);
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/noi-dung");
+  redirect("/admin/noi-dung?ok=deleted");
+}
+
+export async function resetAllContentEntries() {
+  await requireAdmin();
+  await resetAllContentOverrides();
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/noi-dung");
+  redirect("/admin/noi-dung?ok=deleted");
+}
+
+export async function saveAboutSiteAction(formData: FormData) {
+  await requireAdmin();
+  const site = await getSiteUncached();
+  const introVi = value(formData, "aboutIntroVi");
+  const introEn = value(formData, "aboutIntroEn");
+  const visionVi = value(formData, "visionVi")
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const visionEn = value(formData, "visionEn")
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const missionVi = value(formData, "missionVi")
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const missionEn = value(formData, "missionEn")
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const visionCount = Math.max(visionVi.length, visionEn.length);
+  const vision =
+    visionCount > 0
+      ? Array.from({ length: visionCount }, (_, i) => ({
+          vi: visionVi[i] ?? visionEn[i] ?? "",
+          en: visionEn[i] ?? visionVi[i] ?? "",
+        }))
+      : site.about.vision;
+
+  const missionCount = Math.max(missionVi.length, missionEn.length);
+  const mission =
+    missionCount > 0
+      ? Array.from({ length: missionCount }, (_, i) => ({
+          vi: missionVi[i] ?? missionEn[i] ?? "",
+          en: missionEn[i] ?? missionVi[i] ?? "",
+        }))
+      : site.about.mission;
+
+  await saveSiteData({
+    ...site,
+    about: {
+      ...site.about,
+      intro: {
+        vi: introVi || site.about.intro.vi,
+        en: introEn || site.about.intro.en,
+      },
+      vision,
+      mission,
+    },
+  });
+
+  revalidatePath("/admin/noi-dung");
+  refreshPublic();
+  redirect("/admin/noi-dung?ok=saved");
 }

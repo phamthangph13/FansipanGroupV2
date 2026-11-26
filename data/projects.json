@@ -15,7 +15,7 @@
     "status": "completed",
     "categories": ["me"],
     "featured": true,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/vaeco-noi-bai.jpg",
     "clientLogo": null
   },
@@ -35,7 +35,7 @@
     "status": "completed",
     "categories": ["hvac"],
     "featured": false,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/ge-hai-phong-chiller.jpg",
     "clientLogo": null
   },
@@ -55,7 +55,7 @@
     "status": "completed",
     "categories": ["maintenance"],
     "featured": false,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/nha-may-eba.jpg",
     "clientLogo": null
   },
@@ -75,7 +75,7 @@
     "status": "completed",
     "categories": ["cooling"],
     "featured": false,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/nha-may-giay-an-hoa.jpg",
     "clientLogo": null
   },
@@ -95,7 +95,7 @@
     "status": "completed",
     "categories": ["cooling", "maintenance"],
     "featured": true,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/nha-may-panasonic.jpg",
     "clientLogo": null
   },
@@ -115,7 +115,7 @@
     "status": "completed",
     "categories": ["me", "cooling"],
     "featured": true,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/pullman-ha-noi.jpg",
     "clientLogo": null
   },
@@ -135,7 +135,7 @@
     "status": "completed",
     "categories": ["maintenance", "cooling"],
     "featured": true,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/nhiet-dien-na-duong.jpg",
     "clientLogo": null
   },
@@ -155,7 +155,7 @@
     "status": "completed",
     "categories": ["maintenance"],
     "featured": false,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/hoa-phat-phoi-thep.jpg",
     "clientLogo": null
   },
@@ -175,7 +175,7 @@
     "status": "completed",
     "categories": ["me"],
     "featured": true,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/panasonic-system-networks.jpg",
     "clientLogo": null
   },
@@ -195,7 +195,7 @@
     "status": "completed",
     "categories": ["me", "hvac"],
     "featured": false,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/ge-hai-phong-turbine.jpg",
     "clientLogo": null
   },
@@ -215,7 +215,7 @@
     "status": "completed",
     "categories": ["cooling"],
     "featured": true,
-    "allowPublic": false,
+    "allowPublic": true,
     "image": "/images/projects/vaeco-tan-son-nhat.jpg",
     "clientLogo": null
   }

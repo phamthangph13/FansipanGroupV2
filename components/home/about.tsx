@@ -1,7 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
+import { EditableImage } from "@/components/editor/editable-image";
 import { paths, type Locale } from "@/lib/i18n";
 import type { SiteData } from "@/lib/types";
 
@@ -37,12 +38,24 @@ export function AboutSection({ locale, site }: { locale: Locale; site: SiteData 
         <div className="grid gap-x-12 gap-y-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <Reveal>
-              <h2 className="display-2 max-w-[24ch]">{c.title}</h2>
+              <Editable
+                k="home.about.title"
+                locale={locale}
+                fallback={c.title}
+                as="h2"
+                className="display-2 max-w-[24ch]"
+                multiline
+              />
             </Reveal>
             <Reveal delay={100}>
               <div className="mt-8 lg:mt-10">
                 <Link href={`/${locale}${paths.about}`} className="link-arrow">
-                  {c.more}
+                  <Editable
+                    k="home.about.more"
+                    locale={locale}
+                    fallback={c.more}
+                    as="span"
+                  />
                   <ArrowRight className="size-4" />
                 </Link>
               </div>
@@ -50,7 +63,14 @@ export function AboutSection({ locale, site }: { locale: Locale; site: SiteData 
           </div>
           <div className="lg:col-span-5">
             <Reveal delay={80}>
-              <p className="lead">{c.intro}</p>
+              <Editable
+                k="home.about.intro"
+                locale={locale}
+                fallback={c.intro}
+                as="p"
+                className="lead"
+                multiline
+              />
             </Reveal>
           </div>
         </div>
@@ -58,7 +78,8 @@ export function AboutSection({ locale, site }: { locale: Locale; site: SiteData 
         <div className="mt-16 grid gap-4 lg:mt-20 lg:grid-cols-12">
           <Reveal className="lg:col-span-8" delay={120}>
             <div className="relative aspect-[16/10] overflow-hidden bg-sky">
-              <Image
+              <EditableImage
+                k="home.about.image"
                 src="/images/about/team.jpg"
                 alt={
                   locale === "vi"
@@ -70,11 +91,23 @@ export function AboutSection({ locale, site }: { locale: Locale; site: SiteData 
                 className="object-cover"
               />
               <div className="absolute right-0 top-0 hidden max-w-[340px] bg-white p-5 text-[1rem] leading-relaxed text-ink-soft lg:block">
-                {c.overlay}
+                <Editable
+                  k="home.about.overlay"
+                  locale={locale}
+                  fallback={c.overlay}
+                  as="span"
+                  multiline
+                />
               </div>
             </div>
             <p className="mt-5 max-w-[38ch] text-[1rem] leading-relaxed text-ink-soft lg:hidden">
-              {c.overlay}
+              <Editable
+                k="home.about.overlay"
+                locale={locale}
+                fallback={c.overlay}
+                as="span"
+                multiline
+              />
             </p>
           </Reveal>
 
@@ -97,11 +130,31 @@ export function AboutSection({ locale, site }: { locale: Locale; site: SiteData 
                   <circle cx="286" cy="166" r="4" fill="#182C46" />
                 </svg>
               </div>
-              <p className="mt-4 text-[0.8125rem] leading-relaxed text-muted">{c.offices}</p>
+              <p className="mt-4 text-[0.8125rem] leading-relaxed text-muted">
+                <Editable
+                  k="home.about.offices"
+                  locale={locale}
+                  fallback={c.offices}
+                  as="span"
+                />
+              </p>
               <div className="mt-6">
-                <p className="text-[0.8125rem] text-muted">{c.sectors}</p>
+                <p className="text-[0.8125rem] text-muted">
+                  <Editable
+                    k="home.about.sectorsLabel"
+                    locale={locale}
+                    fallback={c.sectors}
+                    as="span"
+                  />
+                </p>
                 <p className="mt-2 text-[1rem] leading-relaxed text-ink-soft">
-                  {site.sectors.map((sector) => sector[locale]).join(" · ")}
+                  <Editable
+                    k="home.about.sectors"
+                    locale={locale}
+                    fallback={site.sectors.map((sector) => sector[locale]).join(" · ")}
+                    as="span"
+                    multiline
+                  />
                 </p>
               </div>
             </Reveal>

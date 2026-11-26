@@ -6,7 +6,7 @@ import { ArrowRight } from "@/components/ui/icons";
 import { PageHero } from "@/components/layout/page-hero";
 import { Flipbook } from "@/components/profile/flipbook";
 import { ClientsStrip } from "@/components/clients/clients-strip";
-import { getServices, getSite } from "@/lib/content";
+import { getCapabilityDocs, getServices, getSite } from "@/lib/content";
 import { isLocale, paths } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
 
@@ -107,8 +107,15 @@ export default async function ProfilePage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  const [site, services] = await Promise.all([getSite(), getServices()]);
+  const [site, services, capabilityDocs] = await Promise.all([
+    getSite(),
+    getServices(),
+    getCapabilityDocs(),
+  ]);
   const c = copy[locale];
+  const primaryProfile = capabilityDocs.find((doc) => doc.kind === "profile") ?? capabilityDocs[0];
+  const pdfUrl = primaryProfile?.file || site.catalogue.pdf;
+  const profileTitle = primaryProfile?.title[locale] || site.catalogue.title[locale];
 
   return (
     <>
@@ -122,7 +129,7 @@ export default async function ProfilePage({
         ]}
       >
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-          <a href={site.catalogue.pdf} download className="btn btn-primary">
+          <a href={pdfUrl} download className="btn btn-primary">
             {c.download}
           </a>
           <Link href={`/${locale}${paths.contact}#quote`} className="link-arrow">
@@ -169,7 +176,7 @@ export default async function ProfilePage({
         <div className="wrap">
           <div className="card-enter flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
             <div className="max-w-2xl">
-              <h2 className="display-2 text-ink">{site.catalogue.title[locale]}</h2>
+              <h2 className="display-2 text-ink">{profileTitle}</h2>
               <p className="mt-4 text-[1rem] leading-relaxed text-ink-soft">{c.readerIntro}</p>
             </div>
             <span className="text-[0.8125rem] text-ink-soft">{c.updated}</span>
@@ -178,8 +185,8 @@ export default async function ProfilePage({
           <div className="card-enter mt-10">
             <Flipbook
               locale={locale}
-              pdfUrl={site.catalogue.pdf}
-              title={site.catalogue.title[locale]}
+              pdfUrl={pdfUrl}
+              title={profileTitle}
             />
           </div>
         </div>
@@ -192,7 +199,7 @@ export default async function ProfilePage({
             <p className="mt-4 max-w-[38ch] text-[1rem] leading-relaxed text-ink-soft">
               {c.insideIntro}
             </p>
-            <a href={site.catalogue.pdf} download className="link-arrow mt-6">
+            <a href={pdfUrl} download className="link-arrow mt-6">
               {c.download}
               <ArrowRight className="size-4" />
             </a>

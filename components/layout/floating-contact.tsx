@@ -36,10 +36,10 @@ export function FloatingContact({ site, locale }: { site: SiteData; locale: Loca
       </button>
 
       <a
-        href={`https://zalo.me/${site.contact.zalo}`}
+        href={site.social.zalo || `https://zalo.me/${site.contact.zalo}`}
         target="_blank"
         rel="noreferrer noopener"
-        aria-label={locale === "vi" ? "Chat Zalo 0913 339 190" : "Chat on Zalo 0913 339 190"}
+        aria-label={locale === "vi" ? `Chat Zalo ${site.contact.hotlineDisplay}` : `Chat on Zalo ${site.contact.hotlineDisplay}`}
         className="group flex h-11 items-center gap-0 overflow-hidden bg-brand px-3 text-white transition-all duration-300 hover:gap-2 hover:pr-4"
       >
         <span className="flex size-8 shrink-0 items-center justify-center bg-white/15">

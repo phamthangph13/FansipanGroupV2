@@ -749,3 +749,42 @@ button {
 .skip-link:focus {
   transform: translateY(0);
 }
+
+/* -------------------------------------------------------------
+   Inline selection editor (admin only)
+   ------------------------------------------------------------- */
+
+body.fsg-editing [data-edit-key] {
+  outline: 1px dashed color-mix(in srgb, var(--color-accent) 55%, transparent);
+  outline-offset: 3px;
+  cursor: text;
+  transition: background-color 0.15s ease;
+}
+
+body.fsg-editing [data-edit-key]:hover {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+body.fsg-editing [data-edit-key]:focus {
+  outline: 2px solid var(--color-accent);
+  background: #ffffff;
+  color: var(--color-ink);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+body.fsg-editing .fsg-generic-hover {
+  outline: 1px dashed color-mix(in srgb, var(--color-brand) 50%, transparent);
+  outline-offset: 2px;
+  cursor: text;
+}
+
+body.fsg-editing .fsg-drop-hover {
+  outline: 3px dashed var(--color-accent) !important;
+  outline-offset: -3px;
+  filter: brightness(0.92);
+}
+
+body.fsg-editing a,
+body.fsg-editing button {
+  cursor: text;
+}

@@ -188,7 +188,7 @@ export default async function ContactPage({
             <div>
               <p className="text-[0.8125rem] text-ink-soft">{c.zalo}</p>
               <a
-                href={`https://zalo.me/${site.contact.zalo}`}
+                href={site.social.zalo || `https://zalo.me/${site.contact.zalo}`}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="mt-1 block text-[1rem] text-ink underline decoration-line underline-offset-4 transition-colors hover:decoration-accent"

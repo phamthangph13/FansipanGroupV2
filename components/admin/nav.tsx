@@ -3,25 +3,37 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3,
   BriefcaseBusiness,
   Building2,
+  FileCheck2,
+  FileUp,
+  Handshake,
   Home,
+  Images,
   Inbox,
   LayoutDashboard,
   Newspaper,
   Settings,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/admin/thong-ke", label: "Thống kê", icon: BarChart3 },
   { href: "/admin/yeu-cau", label: "Yêu cầu báo giá", icon: Inbox },
   { href: "/admin/ung-tuyen", label: "Hồ sơ ứng tuyển", icon: Users },
   { href: "/admin/trang-chu", label: "Trang chủ", icon: Home },
+  { href: "/admin/banner", label: "Banner", icon: Images },
+  { href: "/admin/doi-tac", label: "Đối tác", icon: Handshake },
   { href: "/admin/du-an", label: "Dự án", icon: Building2 },
   { href: "/admin/tin-tuc", label: "Tin tức", icon: Newspaper },
   { href: "/admin/tuyen-dung", label: "Tuyển dụng", icon: BriefcaseBusiness },
+  { href: "/admin/ho-so", label: "Hồ sơ năng lực", icon: FileCheck2 },
+  { href: "/admin/nhap-lieu", label: "Nhập tài liệu", icon: FileUp },
+  { href: "/admin/noi-dung", label: "Selection Editor", icon: Sparkles },
   { href: "/admin/cai-dat", label: "Cài đặt", icon: Settings },
 ];
 
@@ -62,8 +74,8 @@ export function AdminNav({
   }
 
   return (
-    <nav aria-label="Điều hướng quản trị" className="mt-7 flex-1">
-      <ul className="space-y-0.5">
+    <nav aria-label="Điều hướng quản trị" className="mt-5 flex-1 overflow-y-auto">
+      <ul className="space-y-0.5 pb-4">
         {items.map((item) => {
           const active =
             item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href);
@@ -74,13 +86,13 @@ export function AdminNav({
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 border-l-2 px-5 py-2.5 text-[0.8rem] transition-colors",
+                  "flex items-center gap-3 border-l-2 px-5 py-2 text-[0.78rem] transition-colors",
                   active
                     ? "border-accent bg-white/[0.08] font-semibold text-white"
                     : "border-transparent text-white/70 hover:bg-white/[0.04] hover:text-white",
                 )}
               >
-                <Icon className="size-4" strokeWidth={1.6} />
+                <Icon className="size-4 shrink-0" strokeWidth={1.6} />
                 {item.label}
               </Link>
             </li>

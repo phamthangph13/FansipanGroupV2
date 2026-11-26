@@ -1,0 +1,15 @@
+[
+  {
+    "id": "fansipan-group-profile",
+    "title": { "vi": "Hồ sơ năng lực Fansipan Group", "en": "Fansipan Group company profile" },
+    "description": {
+      "vi": "Năng lực, dịch vụ và dự án tiêu biểu của Fansipan Group.",
+      "en": "Capabilities, services and selected projects of Fansipan Group."
+    },
+    "file": "/catalogue/fansipan-group-profile.pdf",
+    "cover": null,
+    "kind": "profile",
+    "order": 1,
+    "visible": true
+  }
+]

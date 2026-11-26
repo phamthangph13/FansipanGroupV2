@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { getSite } from "@/lib/content";
+import { AnalyticsTracker } from "@/components/analytics/tracker";
+import { EditorProvider } from "@/components/editor/editor-provider";
+import { EditorToolbar } from "@/components/editor/editor-toolbar";
+import { SelectionEditor } from "@/components/editor/selection-editor";
+import { isAdmin } from "@/lib/auth";
+import { getContentStore, getSite } from "@/lib/content";
 import { isLocale, ui, type Locale } from "@/lib/i18n";
 import { jsonLdScript, organizationJsonLd } from "@/lib/seo";
 
@@ -59,11 +64,15 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  const [site] = await Promise.all([getSite()]);
+  const [site, content, admin] = await Promise.all([
+    getSite(),
+    getContentStore(),
+    isAdmin(),
+  ]);
   const t = ui[locale];
 
   return (
-    <>
+    <EditorProvider locale={locale} isAdmin={admin} overrides={content.entries}>
       <a href="#main" className="skip-link">
         {locale === "vi" ? "Chuyển đến nội dung chính" : "Skip to main content"}
       </a>
@@ -72,11 +81,14 @@ export default async function LocaleLayout({
         {children}
       </main>
       <Footer locale={locale} site={site} />
+      <EditorToolbar />
+      <SelectionEditor />
+      <AnalyticsTracker locale={locale} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationJsonLd(site)) }}
       />
       <span className="sr-only">{t.labels.contactInfo}</span>
-    </>
+    </EditorProvider>
   );
 }

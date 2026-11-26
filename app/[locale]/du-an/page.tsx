@@ -6,7 +6,8 @@ import { ArrowRight } from "@/components/ui/icons";
 import { ProjectsExplorer } from "@/components/projects/projects-explorer";
 import { ClientsStrip } from "@/components/clients/clients-strip";
 import { Reveal } from "@/components/ui/reveal";
-import { getProjects, getServices, getSite } from "@/lib/content";
+import { Editable } from "@/components/editor/editable";
+import { getPublicProjects, getServices, getSite } from "@/lib/content";
 import { isLocale, paths, ui } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
 
@@ -70,7 +71,7 @@ export default async function ProjectsPage({
   if (!isLocale(locale)) notFound();
   const { category } = await searchParams;
   const [projects, services, site] = await Promise.all([
-    getProjects(),
+    getPublicProjects(),
     getServices(),
     getSite(),
   ]);
@@ -98,21 +99,42 @@ export default async function ProjectsPage({
                   </li>
                   <li aria-hidden>/</li>
                   <li className="text-ink" aria-current="page">
-                    {c.eyebrow}
+                    <Editable k="projects.hero.eyebrow" locale={locale} fallback={c.eyebrow} as="span" />
                   </li>
                 </ol>
               </nav>
 
               <Reveal>
-                <h1 className="display-1 mt-10 max-w-5xl">{c.title}</h1>
-                <p className="lead mt-7 max-w-2xl">{c.intro}</p>
+                <Editable
+                  k="projects.hero.title"
+                  locale={locale}
+                  fallback={c.title}
+                  as="h1"
+                  className="display-1 mt-10 max-w-5xl"
+                  multiline
+                />
+                <Editable
+                  k="projects.hero.intro"
+                  locale={locale}
+                  fallback={c.intro}
+                  as="p"
+                  className="lead mt-7 max-w-2xl"
+                  multiline
+                />
               </Reveal>
 
               <div className="mt-10 flex flex-wrap gap-x-12 gap-y-4">
-                {facts.map((fact) => (
+                {facts.map((fact, index) => (
                   <div key={fact.label}>
                     <p className="display-3 text-ink">{fact.value}</p>
-                    <p className="mt-1 text-[1rem] text-muted">{fact.label}</p>
+                    <p className="mt-1 text-[1rem] text-muted">
+                      <Editable
+                        k={`projects.fact.${index}`}
+                        locale={locale}
+                        fallback={fact.label}
+                        as="span"
+                      />
+                    </p>
                   </div>
                 ))}
               </div>
@@ -134,8 +156,17 @@ export default async function ProjectsPage({
                     ) : null}
                   </div>
                   <figcaption className="mt-3 text-[0.8125rem] text-muted">
-                    {c.featured} · {locale === "vi" ? featured.name : featured.nameEn} ·{" "}
-                    {featured.location[locale]}
+                    <Editable
+                      k="projects.featured"
+                      locale={locale}
+                      fallback={c.featured}
+                      as="span"
+                    />{" "}
+                    ·{" "}
+                    <Link href={`/${locale}${paths.projects}/${featured.id}`} className="hover:text-ink">
+                      {locale === "vi" ? featured.name : featured.nameEn}
+                    </Link>{" "}
+                    · {featured.location[locale]}
                   </figcaption>
                 </figure>
               </Reveal>
@@ -160,11 +191,25 @@ export default async function ProjectsPage({
       <section className="bg-navy py-16 text-white lg:py-20">
         <div className="wrap flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
           <div>
-            <h2 className="display-3 max-w-[20ch] text-white">{c.ctaTitle}</h2>
-            <p className="mt-3 max-w-xl text-[1rem] leading-relaxed text-white/65">{c.ctaBody}</p>
+            <Editable
+              k="projects.cta.title"
+              locale={locale}
+              fallback={c.ctaTitle}
+              as="h2"
+              className="display-3 max-w-[20ch] text-white"
+              multiline
+            />
+            <Editable
+              k="projects.cta.body"
+              locale={locale}
+              fallback={c.ctaBody}
+              as="p"
+              className="mt-3 max-w-xl text-[1rem] leading-relaxed text-white/65"
+              multiline
+            />
           </div>
           <Link href={`/${locale}${paths.contact}#quote`} className="btn btn-primary shrink-0">
-            {c.cta}
+            <Editable k="projects.cta.button" locale={locale} fallback={c.cta} as="span" />
             <ArrowRight className="size-4" />
           </Link>
         </div>

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { getServices, getSite, getSubmissions, writeJson } from "@/lib/content";
+import { getServices, getSite, insertSubmission } from "@/lib/content";
 import { sendContactNotification } from "@/lib/mail";
 import { checkRateLimit, clientIpFromHeaders, hashIp, isLikelySpam } from "@/lib/rate-limit";
 import { contactSchema } from "@/lib/validation";
@@ -70,11 +70,7 @@ export async function sendContactRequest(
   }
 
   try {
-    const [services, site, existing] = await Promise.all([
-      getServices(),
-      getSite(),
-      getSubmissions(),
-    ]);
+    const [services, site] = await Promise.all([getServices(), getSite()]);
 
     const data = parsed.data;
     const service = services.find((item) => item.id === data.need);
@@ -95,7 +91,7 @@ export async function sendContactRequest(
       ipHash: hashIp(ip),
     };
 
-    await writeJson("submissions.json", [submission, ...existing]);
+    await insertSubmission(submission);
     await sendContactNotification(submission, site);
 
     revalidatePath("/admin", "layout");

@@ -15,7 +15,7 @@ export function PageHero({
   locale: Locale;
   eyebrow?: string;
   title: ReactNode;
-  intro?: string;
+  intro?: ReactNode;
   introClassName?: string;
   titleClassName?: string;
   breadcrumb: { label: string; href?: string }[];

@@ -1,7 +1,8 @@
 import "server-only";
 import crypto from "crypto";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { collections, hashPassword, verifyPasswordHash } from "./db";
 
 const COOKIE = "fsg_admin";
 const MAX_AGE = 60 * 60 * 12;
@@ -20,7 +21,7 @@ function sign(payload: string) {
 
 export function createSessionToken() {
   const payload = Buffer.from(
-    JSON.stringify({ exp: Date.now() + MAX_AGE * 1000, scope: "admin" }),
+    JSON.stringify({ exp: Date.now() + MAX_AGE * 1000, scope: "admin", role: "admin" }),
   ).toString("base64url");
   return `${payload}.${sign(payload)}`;
 }
@@ -41,7 +42,17 @@ export function verifySessionToken(token: string | undefined) {
   }
 }
 
-export function checkPassword(input: string) {
+export async function checkPassword(input: string): Promise<boolean> {
+  if (!input) return false;
+  try {
+    const { admins } = await collections();
+    const admin = await admins.findOne({ username: "admin", role: "admin" });
+    if (admin?.passwordHash) {
+      return verifyPasswordHash(input, admin.passwordHash);
+    }
+  } catch {
+    // Fall back to env check if DB check fails during early startup.
+  }
   const expected =
     process.env.ADMIN_PASSWORD ||
     (process.env.NODE_ENV === "production" ? null : "fansipan2026");
@@ -51,13 +62,39 @@ export function checkPassword(input: string) {
   return crypto.timingSafeEqual(a, b);
 }
 
+export async function updateAdminPassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ ok: true } | { ok: false; error: "invalid-current" | "weak-password" }> {
+  if (!(await checkPassword(currentPassword))) {
+    return { ok: false, error: "invalid-current" };
+  }
+  if (newPassword.trim().length < 6) {
+    return { ok: false, error: "weak-password" };
+  }
+  const { admins } = await collections();
+  await admins.updateOne(
+    { username: "admin" },
+    {
+      $set: {
+        username: "admin",
+        role: "admin",
+        passwordHash: hashPassword(newPassword),
+        updatedAt: new Date().toISOString(),
+      },
+    },
+    { upsert: true },
+  );
+  return { ok: true };
+}
+
 export async function isAdmin() {
   const store = await cookies();
   return verifySessionToken(store.get(COOKIE)?.value);
 }
 
 export async function requireAdmin() {
-  if (!(await isAdmin())) redirect("/admin/login");
+  if (!(await isAdmin())) notFound();
 }
 
 export async function setSessionCookie() {

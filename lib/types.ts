@@ -123,6 +123,11 @@ export interface SiteData {
 
 export type ProjectStatus = "completed" | "in_progress" | "planned";
 
+export interface ProjectDocument {
+  title: string;
+  file: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -136,6 +141,12 @@ export interface Project {
   allowPublic: boolean;
   image: string | null;
   clientLogo: string | null;
+  body?: Localized;
+  gallery?: string[];
+  documents?: ProjectDocument[];
+  sector?: Localized;
+  client?: Localized;
+  duration?: Localized;
 }
 
 export type ArticleCategory =
@@ -155,6 +166,9 @@ export interface Article {
   readingMinutes: number;
   published: boolean;
   image?: string | null;
+  autoCategory?: boolean;
+  sourceFile?: string | null;
+  tags?: string[];
 }
 
 export interface Job {
@@ -197,4 +211,86 @@ export interface Application {
   cvOriginalName: string | null;
   locale: Locale;
   read: boolean;
+}
+
+/* ------------------------------------------------------------------ Banners */
+
+export interface Banner {
+  id: string;
+  title: Localized;
+  subtitle: Localized;
+  image: string;
+  alt: Localized;
+  href: string;
+  ctaLabel: Localized;
+  order: number;
+  visible: boolean;
+}
+
+/* ------------------------------------------------------------------ Partners */
+
+export interface Partner {
+  id: string;
+  name: string;
+  logo: string | null;
+  url: string;
+  order: number;
+  visible: boolean;
+}
+
+/* --------------------------------------------------------- Capability files */
+
+export type CapabilityKind = "profile" | "brochure" | "certificate" | "other";
+
+export interface CapabilityDoc {
+  id: string;
+  title: Localized;
+  description: Localized;
+  file: string;
+  cover: string | null;
+  kind: CapabilityKind;
+  order: number;
+  visible: boolean;
+}
+
+/* --------------------------------------------------------- Content overrides */
+
+export type ContentValue = Partial<Record<Locale, string>>;
+
+export interface ContentStore {
+  version: number;
+  updatedAt: string;
+  entries: Record<string, ContentValue>;
+}
+
+/* ---------------------------------------------------------------- Analytics */
+
+export interface AnalyticsDay {
+  date: string;
+  views: number;
+  visitors: string[];
+  pages: Record<string, number>;
+  referrers: Record<string, number>;
+  devices: Record<string, number>;
+  locales: Record<string, number>;
+}
+
+export interface AnalyticsData {
+  version: number;
+  updatedAt: string;
+  days: Record<string, AnalyticsDay>;
+}
+
+export interface AnalyticsSummary {
+  totalViews: number;
+  totalVisitors: number;
+  todayViews: number;
+  todayVisitors: number;
+  last7Views: number;
+  last30Views: number;
+  days: AnalyticsDay[];
+  topPages: { path: string; views: number }[];
+  topReferrers: { source: string; views: number }[];
+  devices: { device: string; views: number }[];
+  locales: { locale: string; views: number }[];
 }

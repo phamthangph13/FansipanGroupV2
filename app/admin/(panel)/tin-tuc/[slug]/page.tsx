@@ -1,19 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Eye, Save } from "lucide-react";
+import { ArrowLeft, Eye, Save, Sparkles } from "lucide-react";
 import { getAllArticles } from "@/lib/content";
 import { articleCategories, articleCategoryLabels } from "@/lib/labels";
 import { AdminEditorHeader, AdminField, LocalizedInput } from "@/components/admin/form-fields";
+import { DocImporter } from "@/components/admin/doc-importer";
+import { AdminNotice } from "@/components/admin/notice";
 import { saveArticle } from "@/app/admin/actions";
 
 export const metadata = { title: "Sửa bài viết" };
 
 export default async function ArticleEditorPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ ok?: string | string[]; error?: string | string[] }>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const isNew = slug === "new";
   const articles = await getAllArticles();
   const article = isNew ? undefined : articles.find((item) => item.slug === slug);
@@ -29,7 +33,7 @@ export default async function ArticleEditorPage({
         title={isNew ? "Viết bài mới" : "Sửa bài viết"}
         description={
           isNew
-            ? "Bài viết mới được lưu ở trạng thái nháp cho đến khi bạn bật xuất bản."
+            ? "Viết trực tiếp hoặc tải file Word (.docx) / PDF lên để nạp nội dung và tự động phân loại chủ đề."
             : `Đang chỉnh sửa: ${article?.title.vi}`
         }
         backHref="/admin/tin-tuc"
@@ -41,9 +45,23 @@ export default async function ArticleEditorPage({
         </Link>
       </AdminEditorHeader>
 
-      <form action={saveArticle} className="mt-6 grid gap-5 xl:grid-cols-12">
+      <div className="mt-5">
+        <AdminNotice ok={sp.ok} error={sp.error} />
+      </div>
+
+      <div className="mt-4">
+        <DocImporter target="article" />
+      </div>
+
+      <form action={saveArticle} className="mt-5 grid gap-5 xl:grid-cols-12">
         {article ? <input type="hidden" name="originalSlug" value={article.slug} /> : null}
         <input type="hidden" name="slug" value={article?.slug ?? ""} />
+        <input
+          type="hidden"
+          id="sourceFile"
+          name="sourceFile"
+          defaultValue={article?.sourceFile ?? ""}
+        />
 
         <div className="space-y-5 xl:col-span-8">
           <section className="border border-line bg-white">
@@ -74,8 +92,8 @@ export default async function ArticleEditorPage({
                 <p className="mt-1.5 text-[0.68rem] leading-relaxed text-muted/70">
                   Hỗ trợ định dạng: <code className="font-mono">## Tiêu đề mục</code>,{" "}
                   <code className="font-mono">### Tiêu đề phụ</code>, dòng bắt đầu bằng{" "}
-                  <code className="font-mono">- </code> cho danh sách, <code className="font-mono">**chữ đậm**</code>.
-                  Cách nhau bằng một dòng trống.
+                  <code className="font-mono">- </code> cho danh sách,{" "}
+                  <code className="font-mono">**chữ đậm**</code>. Cách nhau bằng một dòng trống.
                 </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <div className="field">
@@ -111,10 +129,29 @@ export default async function ArticleEditorPage({
         <aside className="space-y-5 xl:col-span-4">
           <section className="border border-line bg-white">
             <div className="border-b border-line px-5 py-3.5">
-              <h2 className="text-[0.92rem] font-semibold text-ink">Phân loại &amp; thời gian</h2>
+              <h2 className="text-[0.92rem] font-semibold text-ink">
+                Phân loại chủ đề &amp; thời gian
+              </h2>
             </div>
             <div className="space-y-4 p-5">
-              <AdminField label="Chuyên mục" htmlFor="category">
+              <label className="checkbox-row cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="autoCategory"
+                  defaultChecked={article?.autoCategory ?? isNew}
+                  className="accent-[var(--color-brand)]"
+                />
+                <span>
+                  <span className="flex items-center gap-1.5 font-medium text-ink">
+                    <Sparkles className="size-3.5 text-accent" /> Tự động phân loại theo keyword
+                  </span>
+                  <span className="mt-0.5 block text-[0.7rem] text-muted">
+                    Tự động gắn vào 1 trong 5 chủ đề cố định để tránh loãng chuyên mục.
+                  </span>
+                </span>
+              </label>
+
+              <AdminField label="Chuyên mục (giới hạn 5 chủ đề)" htmlFor="category">
                 <select
                   id="category"
                   name="category"
@@ -127,6 +164,20 @@ export default async function ArticleEditorPage({
                     </option>
                   ))}
                 </select>
+              </AdminField>
+
+              <AdminField
+                label="Từ khóa chính (tối đa 5 tag)"
+                htmlFor="tags"
+                hint="Phân cách bằng dấu phẩy. Tự động sinh từ nội dung nếu để trống."
+              >
+                <input
+                  id="tags"
+                  name="tags"
+                  defaultValue={article?.tags?.join(", ") ?? ""}
+                  className="input text-[0.8rem]"
+                  placeholder="HVAC, Chiller, Bảo trì hệ thống"
+                />
               </AdminField>
 
               <div className="grid grid-cols-2 gap-3">
@@ -155,7 +206,7 @@ export default async function ArticleEditorPage({
               <AdminField
                 label="Đường dẫn (slug)"
                 htmlFor="slugDisplay"
-                hint="Tự động tạo từ tiêu đề nếu để trống. Chỉ dùng chữ thường, số và dấu gạch nối."
+                hint="Tự động tạo từ tiêu đề nếu để trống."
               >
                 <input
                   id="slugDisplay"
@@ -170,7 +221,7 @@ export default async function ArticleEditorPage({
 
           <section className="border border-line bg-white">
             <div className="border-b border-line px-5 py-3.5">
-              <h2 className="text-[0.92rem] font-semibold text-ink">Hiển thị</h2>
+              <h2 className="text-[0.92rem] font-semibold text-ink">Hiển thị &amp; ảnh bìa</h2>
             </div>
             <div className="space-y-3 p-5">
               <label className="checkbox-row cursor-pointer">
@@ -190,8 +241,17 @@ export default async function ArticleEditorPage({
                 </span>
               </label>
               <div className="h-px bg-line" />
+              <AdminField label="Tải ảnh đại diện mới" htmlFor="imageFile">
+                <input
+                  id="imageFile"
+                  name="imageFile"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/avif"
+                  className="input text-[0.76rem]"
+                />
+              </AdminField>
               <AdminField
-                label="Ảnh đại diện"
+                label="Hoặc đường dẫn ảnh đại diện"
                 htmlFor="image"
                 hint="Để trống sẽ dùng hình minh hoạ theo chuyên mục."
               >
@@ -211,7 +271,7 @@ export default async function ArticleEditorPage({
             {isNew ? "Tạo bài viết" : "Lưu thay đổi"}
           </button>
           <p className="text-center text-[0.66rem] text-muted/60">
-            Bản nháp vẫn được lưu và có thể xuất bản sau.
+            Bản nháp vẫn được lưu trong MongoDB và có thể xuất bản sau.
           </p>
         </aside>
       </form>

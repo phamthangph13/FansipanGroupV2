@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Close, Menu } from "@/components/ui/icons";
 import { Logo } from "@/components/brand/logo";
+import { EditableText } from "@/components/editor/editable-text";
 import { cn } from "@/lib/utils";
 import { paths, switchLocalePath, ui, type Locale } from "@/lib/i18n";
 import type { SiteData } from "@/lib/types";
@@ -48,20 +49,20 @@ export function Header({
   };
 
   const links = [
-    { label: t.nav.services, path: paths.services },
-    { label: t.nav.projects, path: paths.projects },
-    { label: t.nav.about, path: paths.about },
-    { label: t.nav.news, path: paths.news },
+    { label: t.nav.services, path: paths.services, key: "nav.services" },
+    { label: t.nav.projects, path: paths.projects, key: "nav.projects" },
+    { label: t.nav.about, path: paths.about, key: "nav.about" },
+    { label: t.nav.news, path: paths.news, key: "nav.news" },
   ];
 
   const drawerLinks = [
-    { label: t.nav.services, path: paths.services },
-    { label: t.nav.projects, path: paths.projects },
-    { label: t.nav.profile, path: paths.profile },
-    { label: t.nav.news, path: paths.news },
-    { label: t.nav.careers, path: paths.careers },
-    { label: t.nav.about, path: paths.about },
-    { label: t.nav.contact, path: paths.contact },
+    { label: t.nav.services, path: paths.services, key: "nav.services" },
+    { label: t.nav.projects, path: paths.projects, key: "nav.projects" },
+    { label: t.nav.profile, path: paths.profile, key: "nav.profile" },
+    { label: t.nav.news, path: paths.news, key: "nav.news" },
+    { label: t.nav.careers, path: paths.careers, key: "nav.careers" },
+    { label: t.nav.about, path: paths.about, key: "nav.about" },
+    { label: t.nav.contact, path: paths.contact, key: "nav.contact" },
   ];
 
   return (
@@ -91,7 +92,7 @@ export function Header({
                 isActive(item.path) && "underline decoration-1 underline-offset-[6px]",
               )}
             >
-              {item.label}
+              <EditableText k={item.key} defaultText={item.label} as="span" />
             </Link>
           ))}
 
@@ -120,7 +121,7 @@ export function Header({
             href={`/${locale}${paths.contact}#quote`}
             className="btn btn-primary btn-sm"
           >
-            {t.actions.quote}
+            <EditableText k="nav.quote" defaultText={t.actions.quote} as="span" />
           </Link>
         </nav>
 
@@ -164,7 +165,7 @@ export function Header({
                 href={`/${locale}${item.path}`}
                 className="display-2 w-fit text-white transition-colors hover:text-accent"
               >
-                {item.label}
+                <EditableText k={item.key} defaultText={item.label} as="span" />
               </Link>
             ))}
           </nav>

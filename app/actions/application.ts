@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { getApplications, getJob, getSite, writeJson } from "@/lib/content";
+import { getJob, getSite, insertApplication } from "@/lib/content";
 import { sendApplicationNotification } from "@/lib/mail";
 import { checkRateLimit, clientIpFromHeaders, isLikelySpam } from "@/lib/rate-limit";
 import { deleteCv, saveCv } from "@/lib/storage";
@@ -92,7 +92,7 @@ export async function submitApplication(
       };
     }
 
-    const [site, existing] = await Promise.all([getSite(), getApplications()]);
+    const site = await getSite();
     const id = newId();
     const stored = await saveCv(file, id);
 
@@ -120,7 +120,7 @@ export async function submitApplication(
     };
 
     try {
-      await writeJson("applications.json", [application, ...existing]);
+      await insertApplication(application);
     } catch (error) {
       await deleteCv(stored.stored);
       throw error;

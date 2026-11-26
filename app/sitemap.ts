@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
-import { getArticles, getJobs, getServices } from "@/lib/content";
+import { getArticles, getJobs, getPublicProjects, getServices } from "@/lib/content";
 import { paths } from "@/lib/i18n";
 
 const BASE = (process.env.NEXT_PUBLIC_SITE_URL || "https://fansipan-group.vn").replace(/\/$/, "");
 const locales = ["vi", "en"] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, articles, jobs] = await Promise.all([
+  const [services, projects, articles, jobs] = await Promise.all([
     getServices(),
+    getPublicProjects(),
     getArticles(),
     getJobs(),
   ]);
@@ -41,6 +42,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${BASE}/${locale}${paths.services}/${service.slug}`,
         changeFrequency: "monthly",
         priority: 0.8,
+      });
+    }
+
+    for (const project of projects) {
+      entries.push({
+        url: `${BASE}/${locale}${paths.projects}/${project.id}`,
+        changeFrequency: "monthly",
+        priority: 0.7,
       });
     }
 

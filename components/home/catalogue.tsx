@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Download } from "@/components/ui/icons";
 import { Reveal } from "@/components/ui/reveal";
+import { Editable } from "@/components/editor/editable";
+import { getCapabilityDocs } from "@/lib/content";
 import { paths, type Locale } from "@/lib/i18n";
 import type { SiteData } from "@/lib/types";
 
@@ -19,8 +21,11 @@ const copy = {
   },
 } as const;
 
-export function CatalogueSection({ locale, site }: { locale: Locale; site: SiteData }) {
+export async function CatalogueSection({ locale, site }: { locale: Locale; site: SiteData }) {
   const c = copy[locale];
+  const docs = await getCapabilityDocs();
+  const primaryProfile = docs.find((doc) => doc.kind === "profile") ?? docs[0];
+  const pdfUrl = primaryProfile?.file || site.catalogue.pdf;
 
   return (
     <section id="ho-so-nang-luc" className="bg-brand-100 py-14 lg:py-16">
@@ -28,29 +33,56 @@ export function CatalogueSection({ locale, site }: { locale: Locale; site: SiteD
         <Reveal>
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="display-3 max-w-[22ch] text-ink">
-                {c.title}
-              </h2>
-              <p className="mt-2 text-[0.8125rem] text-ink/60">{c.contents}</p>
+              <Editable
+                k="home.catalogue.title"
+                locale={locale}
+                fallback={c.title}
+                as="h2"
+                className="display-3 max-w-[22ch] text-ink"
+                multiline
+              />
+              <Editable
+                k="home.catalogue.contents"
+                locale={locale}
+                fallback={c.contents}
+                as="p"
+                className="mt-2 text-[0.8125rem] text-ink/60"
+                multiline
+              />
             </div>
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-8">
               <Link href={`/${locale}${paths.profile}`} className="btn btn-dark">
-                {c.online}
+                <Editable
+                  k="home.catalogue.online"
+                  locale={locale}
+                  fallback={c.online}
+                  as="span"
+                />
                 <ArrowRight className="size-4" />
               </Link>
               <a
-                href={site.catalogue.pdf}
+                href={pdfUrl}
                 download
                 className="link-arrow text-[1rem]"
               >
                 <Download className="size-4" />
-                {c.download}
+                <Editable
+                  k="home.catalogue.download"
+                  locale={locale}
+                  fallback={c.download}
+                  as="span"
+                />
               </a>
             </div>
           </div>
-          <p className="mt-6 max-w-2xl text-[0.8125rem] leading-relaxed text-ink/55">
-            {site.catalogue.note[locale]}
-          </p>
+          <Editable
+            k="home.catalogue.note"
+            locale={locale}
+            fallback={site.catalogue.note[locale]}
+            as="p"
+            className="mt-6 max-w-2xl text-[0.8125rem] leading-relaxed text-ink/55"
+            multiline
+          />
         </Reveal>
       </div>
     </section>

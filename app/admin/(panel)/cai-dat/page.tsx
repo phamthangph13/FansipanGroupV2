@@ -3,6 +3,7 @@ import {
   Building2,
   ExternalLink,
   Globe2,
+  KeyRound,
   Mail,
   MapPinned,
   Save,
@@ -13,7 +14,7 @@ import {
 import { getSite } from "@/lib/content";
 import { AdminNotice } from "@/components/admin/notice";
 import { AdminField, LocalizedInput } from "@/components/admin/form-fields";
-import { saveSettings } from "@/app/admin/actions";
+import { changePasswordAction, saveSettings } from "@/app/admin/actions";
 
 export const metadata = { title: "Cài đặt" };
 
@@ -24,6 +25,7 @@ const sections = [
   { href: "#so-lieu", label: "Số liệu" },
   { href: "#catalogue", label: "Catalogue" },
   { href: "#khach-hang", label: "Khách hàng" },
+  { href: "#bao-mat", label: "Mật khẩu" },
 ];
 
 export default async function SettingsPage({
@@ -473,6 +475,60 @@ export default async function SettingsPage({
           </button>
         </div>
       </form>
+
+      <section id="bao-mat" className="mt-6 scroll-mt-28 border border-line bg-white">
+        <div className="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+          <KeyRound className="size-4 text-brand" strokeWidth={1.7} />
+          <h2 className="text-[0.92rem] font-semibold text-ink">
+            Đổi mật khẩu Quản trị viên
+          </h2>
+        </div>
+        <form action={changePasswordAction} className="grid gap-4 p-5 md:grid-cols-3">
+          <AdminField label="Mật khẩu hiện tại" htmlFor="currentPassword" required>
+            <input
+              id="currentPassword"
+              name="currentPassword"
+              type="password"
+              required
+              className="input"
+              autoComplete="current-password"
+            />
+          </AdminField>
+          <AdminField
+            label="Mật khẩu mới"
+            htmlFor="newPassword"
+            required
+            hint="Tối thiểu 6 ký tự."
+          >
+            <input
+              id="newPassword"
+              name="newPassword"
+              type="password"
+              minLength={6}
+              required
+              className="input"
+              autoComplete="new-password"
+            />
+          </AdminField>
+          <AdminField label="Xác nhận mật khẩu mới" htmlFor="confirmPassword" required>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              minLength={6}
+              required
+              className="input"
+              autoComplete="new-password"
+            />
+          </AdminField>
+          <div className="md:col-span-3">
+            <button type="submit" className="btn btn-outline btn-sm">
+              <KeyRound className="size-3.5" />
+              Cập nhật mật khẩu
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "@/components/ui/icons";
+import { EditableText } from "@/components/editor/editable-text";
 import { cn } from "@/lib/utils";
 import { ProjectCard } from "@/components/projects/project-card";
 import { paths, ui, type Locale } from "@/lib/i18n";
@@ -74,7 +75,7 @@ export function ProjectsExplorer({
                 : "border-transparent text-muted hover:text-ink",
             )}
           >
-            {c.all}
+            <EditableText k="projects.all" defaultText={c.all} as="span" />
           </button>
           {services.map((service) => (
             <button
@@ -95,7 +96,8 @@ export function ProjectsExplorer({
           ))}
         </div>
         <p className="shrink-0 text-[0.8125rem] text-muted">
-          {filtered.length} {c.results}
+          {filtered.length}{" "}
+          <EditableText k="projects.results" defaultText={c.results} as="span" />
         </p>
       </div>
 
@@ -112,14 +114,20 @@ export function ProjectsExplorer({
       {limit ? (
         <div className="mt-4">
           <Link href={moreHref} className="link-arrow">
-            {c.more}
+            <EditableText k="projects.more" defaultText={c.more} as="span" />
             <ArrowRight className="size-4" />
           </Link>
         </div>
       ) : null}
 
       {showNote ? (
-        <p className="mt-10 max-w-3xl text-[0.8125rem] leading-relaxed text-muted">{c.note}</p>
+        <EditableText
+          k="projects.note"
+          defaultText={c.note}
+          as="p"
+          className="mt-10 max-w-3xl text-[0.8125rem] leading-relaxed text-muted"
+          multiline
+        />
       ) : null}
     </div>
   );
