@@ -32,6 +32,7 @@ export interface AdminUserDoc {
   username: string;
   role: "admin";
   passwordHash: string;
+  envHash?: string;
   updatedAt: string;
 }
 
@@ -191,26 +192,40 @@ async function ensureIndexesAndSeed(db: Db) {
     }
   }
 
-  // Ensure single role "admin" exists in MongoDB.
+  // Ensure single role "admin" exists in MongoDB and sync when ADMIN_PASSWORD env changes.
   const adminsCol = db.collection<AdminUserDoc>("admins");
-  if ((await adminsCol.countDocuments({ username: "admin" })) === 0) {
-    const initialPassword =
-      process.env.ADMIN_PASSWORD ||
-      (process.env.NODE_ENV === "production" ? "" : "fansipan2026");
-    if (initialPassword) {
+  const envPassword = process.env.ADMIN_PASSWORD || "";
+  if (envPassword) {
+    const envHash = crypto.createHash("sha256").update(envPassword).digest("hex");
+    const existingAdmin = await adminsCol.findOne({ username: "admin" });
+    if (!existingAdmin || existingAdmin.envHash !== envHash) {
       await adminsCol.updateOne(
         { username: "admin" },
         {
-          $setOnInsert: {
+          $set: {
             username: "admin",
             role: "admin",
-            passwordHash: hashPassword(initialPassword),
+            passwordHash: hashPassword(envPassword),
+            envHash,
             updatedAt: new Date().toISOString(),
           },
         },
         { upsert: true },
       );
     }
+  } else if ((await adminsCol.countDocuments({ username: "admin" })) === 0 && process.env.NODE_ENV !== "production") {
+    await adminsCol.updateOne(
+      { username: "admin" },
+      {
+        $setOnInsert: {
+          username: "admin",
+          role: "admin",
+          passwordHash: hashPassword("fansipan2026"),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+      { upsert: true },
+    );
   }
 }
 

@@ -47,6 +47,30 @@ export async function checkPassword(input: string): Promise<boolean> {
   try {
     const { admins } = await collections();
     const admin = await admins.findOne({ username: "admin", role: "admin" });
+    const envPassword = process.env.ADMIN_PASSWORD || "";
+    const envHash = envPassword
+      ? crypto.createHash("sha256").update(envPassword).digest("hex")
+      : undefined;
+
+    if (envPassword && (!admin || admin.envHash !== envHash)) {
+      await admins.updateOne(
+        { username: "admin" },
+        {
+          $set: {
+            username: "admin",
+            role: "admin",
+            passwordHash: hashPassword(envPassword),
+            envHash,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+        { upsert: true },
+      );
+      const a = crypto.createHash("sha256").update(input).digest();
+      const b = crypto.createHash("sha256").update(envPassword).digest();
+      return crypto.timingSafeEqual(a, b);
+    }
+
     if (admin?.passwordHash) {
       return verifyPasswordHash(input, admin.passwordHash);
     }
