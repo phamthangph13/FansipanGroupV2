@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
+    dangerouslyAllowSVG: true,
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],

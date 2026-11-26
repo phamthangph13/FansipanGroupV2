@@ -17,8 +17,8 @@ const ALLOWED = new Map<string, string[]>([
 const ALLOWED_EXT = [".pdf", ".doc", ".docx"];
 const MAX_SIZE = 5 * 1024 * 1024;
 
-function mimeForExt(ext: string) {
-  switch (ext) {
+export function mimeForExt(ext: string) {
+  switch (ext.toLowerCase()) {
     case ".pdf":
       return "application/pdf";
     case ".doc":
@@ -51,13 +51,11 @@ export async function saveCv(file: File, id: string) {
     return { ok: false as const, error: "type" };
   }
 
-  await fs.mkdir(uploadsDir, { recursive: true });
   const safe = sanitizeFileName(path.basename(file.name, ext)) || "cv";
   const stored = `${id}-${safe}${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(uploadsDir, stored), buffer);
 
-  // Also persist binary in MongoDB uploads collection as durable backup.
+  // Persist binary in MongoDB first (works on read-only serverless environments like Vercel).
   const { uploads } = await collections();
   await uploads.replaceOne(
     { id: `cv:${stored}` },
@@ -73,37 +71,44 @@ export async function saveCv(file: File, id: string) {
     { upsert: true },
   );
 
+  // Best-effort local disk copy when filesystem is writable.
+  try {
+    await fs.mkdir(uploadsDir, { recursive: true });
+    await fs.writeFile(path.join(uploadsDir, stored), buffer);
+  } catch {
+    // Ignore read-only filesystem errors in serverless environments.
+  }
+
   return { ok: true as const, stored, original: file.name };
 }
 
 export async function readCv(stored: string) {
   const safe = path.basename(stored);
   const full = path.join(uploadsDir, safe);
-  try {
-    const buffer = await fs.readFile(full);
-    return { buffer, full };
-  } catch {
-    const { uploads } = await collections();
-    const doc = await uploads.findOne({ id: `cv:${safe}` });
-    if (!doc?.data) throw new Error("CV not found");
-    const buffer = Buffer.from(doc.data.buffer);
-    return { buffer, full };
+
+  const { uploads } = await collections();
+  const doc = await uploads.findOne({ id: `cv:${safe}` });
+  if (doc?.data) {
+    return { buffer: Buffer.from(doc.data.buffer), full };
   }
+
+  const buffer = await fs.readFile(full);
+  return { buffer, full };
 }
 
 export async function deleteCv(stored: string | null) {
   if (!stored) return;
   const safe = path.basename(stored);
   try {
-    await fs.unlink(path.join(uploadsDir, safe));
-  } catch {
-    // File may already be missing; nothing else to do.
-  }
-  try {
     const { uploads } = await collections();
     await uploads.deleteOne({ id: `cv:${safe}` });
   } catch {
     // Ignore DB cleanup errors.
+  }
+  try {
+    await fs.unlink(path.join(uploadsDir, safe));
+  } catch {
+    // File may not exist on serverless disk.
   }
 }
 
@@ -120,7 +125,8 @@ export async function savePublicUpload(
   folder: "banners" | "partners" | "capabilities" | "projects" | "news" | "documents" | "editor",
   kind: "image" | "document",
 ): Promise<{ ok: true; url: string } | { ok: false; error: "size" | "type" }> {
-  const limit = kind === "image" ? 10 * 1024 * 1024 : 25 * 1024 * 1024;
+  // Keep within MongoDB 16 MB BSON document limit.
+  const limit = kind === "image" ? 10 * 1024 * 1024 : 14 * 1024 * 1024;
   if (file.size === 0) return { ok: false, error: "type" };
   if (file.size > limit) return { ok: false, error: "size" };
 
@@ -128,15 +134,13 @@ export async function savePublicUpload(
   const allowed = kind === "image" ? IMAGE_EXT : DOCUMENT_EXT;
   if (!allowed.includes(ext)) return { ok: false, error: "type" };
 
-  const directory = path.join(publicUploadsDir, folder);
-  await fs.mkdir(directory, { recursive: true });
-
   const base = sanitizeFileName(path.basename(file.name, ext)) || "file";
   const stored = `${Date.now().toString(36)}-${base.slice(0, 60)}${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(directory, stored), buffer);
 
-  const url = `/uploads/${folder}/${stored}`;
+  const url = `/api/media/${folder}/${stored}`;
+  const legacyKey = `/uploads/${folder}/${stored}`;
+
   const { uploads } = await collections();
   await uploads.replaceOne(
     { id: url },
@@ -152,5 +156,15 @@ export async function savePublicUpload(
     { upsert: true },
   );
 
+  // Best-effort local disk copy.
+  try {
+    const directory = path.join(publicUploadsDir, folder);
+    await fs.mkdir(directory, { recursive: true });
+    await fs.writeFile(path.join(directory, stored), buffer);
+  } catch {
+    // Ignore read-only filesystem errors in serverless environments.
+  }
+
+  void legacyKey;
   return { ok: true, url };
 }

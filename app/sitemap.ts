@@ -5,6 +5,8 @@ import { paths } from "@/lib/i18n";
 const BASE = (process.env.NEXT_PUBLIC_SITE_URL || "https://fansipan-group.vn").replace(/\/$/, "");
 const locales = ["vi", "en"] as const;
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [services, projects, articles, jobs] = await Promise.all([
     getServices(),
